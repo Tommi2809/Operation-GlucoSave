@@ -334,6 +334,11 @@ details summary{
 .kartenColHead{ font-family:"Courier New",monospace; font-size:1rem; color:var(--ink-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
 .cardPool{ display:flex; flex-direction:column; gap:10px; }
 
+.cardPool {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .dragCard{
   background:#fffaf0; border:1px solid var(--paper-edge); border-radius:12px;
   padding:10px 12px; cursor:grab; user-select:none;
@@ -366,6 +371,11 @@ details summary{
 .dragCard.dragging {
   opacity: 0.6;
   transform: scale(1.05);
+}
+.dragCard.activeTouch {
+  border: 2px solid #2e6338;
+  background-color: #eef8ee;
+  box-shadow: 0 0 10px rgba(46,99,56,0.5);
 }
 
 </style>
@@ -646,6 +656,54 @@ details summary{
     <button class="btn backBtn" onclick="playClick();goBack('k2')">Zurück: Glukose</button>
   </div>
 </section>
+
+/* ----------------- KAPITEL 3 – TOUCH-ZUORDNUNG ----------------- */
+// Nur aktiv auf Touch-Geräten
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  let selectedCard = null;
+
+  // Wenn auf eine Hormonkarte getippt wird
+  document.querySelectorAll(".dragCard").forEach(card => {
+    card.addEventListener("click", () => {
+      // bereits benutzte Karten ignorieren
+      if (card.style.visibility === "hidden") return;
+
+      // visuelles Feedback
+      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
+      card.classList.add("activeTouch");
+      selectedCard = card;
+      playClick();
+    });
+  });
+
+  // Wenn auf ein Wirkungsfeld getippt wird
+  document.querySelectorAll(".dropTarget").forEach(zone => {
+    zone.addEventListener("click", () => {
+      if (!selectedCard) return; // keine Karte ausgewählt
+      const horm = selectedCard.getAttribute("data-horm");
+      const accept = zone.getAttribute("data-accept");
+      const msg = document.getElementById("msg_" + accept);
+
+      if (horm === accept) {
+        zone.classList.add("correct");
+        zone.textContent = selectedCard.textContent;
+        selectedCard.style.visibility = "hidden";
+        msg.textContent = "✔️ Richtig!";
+        msg.className = "dropMsg ok";
+        playSuccess();
+      } else {
+        msg.textContent = "❌ Falsch, versuch es nochmal.";
+        msg.className = "dropMsg bad";
+        playClick();
+      }
+
+      selectedCard.classList.remove("activeTouch");
+      selectedCard = null;
+      checkAllAssigned();
+    });
+  });
+}
+
 
 <!-- KAPITEL 4 -->
 <section class="card hidden" id="k4">
