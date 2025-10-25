@@ -1,0 +1,1610 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Operation GlucoSave – Walburgisschulen Menden</title>
+<!--
+Erstellt von: Thomas Werneke
+Projekt: Operation GlucoSave – Interaktives Lernspiel zur Blutzuckerregulation
+Ort: Walburgisschulen Menden
+Version: v7 (online-optimiert, Tablet-kompatibel)
+-->
+<meta name="author" content="Thomas Werneke">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --paper-bg: #f4ecd8;
+  --paper-edge: #ccb892;
+  --ink-dark: #2b261f;
+  --ink-dim: #5a5042;
+  --ink-alert: #a1342d;
+  --ink-ok: #2e6338;
+  --accent-stamp: #a1342d;
+  --accent-brass: #c7a05a;
+  --muted-text: #6b5a40;
+  --panel-inner: #2a261f;
+  --panel-border: #4a4033;
+  --panel-glow: rgba(199,160,90,.25);
+  --terminal-bg: #1c1f18;
+  --terminal-text: #9fce8c;
+  --terminal-dim: #5a6f51;
+  --quiz-bg: #fff9e8;
+  --quiz-border: #ccb892;
+  --crit-bg: #3a1d1a;
+  --crit-border: #a1342d;
+  --ok-bg: #223322;
+  --ok-border: #2e6338;
+
+#hintK5 {
+  color: #2b2b2b;                  /* dunkles Anthrazit, gut lesbar auf hellem Papier */
+  background: rgba(255, 255, 240, 0.95); /* leichtes Pergament */
+  border: 1px solid rgba(200, 180, 120, 0.6);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: inset 0 0 6px rgba(180,160,100,0.4);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+* { box-sizing: border-box; }
+
+body{
+  background:
+    radial-gradient(circle at 30% 20%, rgba(60,46,32,.4) 0%, rgba(15,12,9,1) 70%),
+    #0f0c09;
+  color: var(--ink-dark);
+  font-family: "EB Garamond","Georgia",serif;
+  margin:0;
+  line-height:1.5;
+  padding:0 0 80px;
+}
+
+header{
+  text-align:center;
+  padding:24px 16px 12px;
+}
+header h1{
+  display:inline-block;
+  margin:0;
+  font-weight:600;
+  font-size:clamp(24px,4vw,36px);
+  padding:8px 16px;
+  border:2px solid var(--accent-stamp);
+  color:var(--accent-stamp);
+  background:rgba(255,255,255,.06);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  box-shadow:
+    0 0 8px rgba(0,0,0,.5),
+    0 0 0 3px rgba(161,52,45,.15) inset;
+}
+header .lead{
+  margin:8px auto 0;
+  max-width:900px;
+  color:var(--muted-text);
+  font-size:.9rem;
+  line-height:1.4;
+  font-style:italic;
+}
+
+/* Sound toggle */
+#soundToggle{
+  position:fixed;
+  right:12px; top:12px; z-index:9999;
+  border:1px solid var(--paper-edge);
+  border-radius:10px;
+  background:var(--paper-bg);
+  box-shadow:0 6px 14px rgba(0,0,0,.4),0 0 0 2px rgba(255,255,255,.4) inset;
+  font-family:"Courier New",monospace;
+  font-weight:700;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  padding:10px 12px;
+  cursor:pointer;
+  font-size:.9rem;
+}
+#soundToggle.active{ outline:2px solid var(--accent-stamp); transform:scale(1.02); }
+#soundToggle:active{ transform:scale(0.98); }
+
+main{ max-width:1000px; margin:0 auto; padding:12px 16px 40px; }
+
+section.card{
+  position:relative;
+  background:var(--paper-bg);
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0px,transparent 6px,rgba(0,0,0,.03) 7px),
+    radial-gradient(rgba(0,0,0,.05) 1px,transparent 1px);
+  background-size:100% 8px,6px 6px;
+  border:1px solid var(--paper-edge);
+  border-radius:14px;
+  padding:20px;
+  margin:24px auto;
+  box-shadow:
+    0 24px 40px rgba(0,0,0,.6),
+    0 0 80px rgba(0,0,0,.6),
+    0 0 0 3px rgba(255,255,255,.3) inset;
+  opacity:1;
+  transition:opacity .6s ease;
+}
+section.card.hidden{ display:none; }
+section.card.leaving{ opacity:0; pointer-events:none; }
+section.card.entering{ opacity:0; }
+
+.cardHead{
+  display:flex; flex-wrap:wrap; gap:8px 16px;
+  justify-content:space-between; align-items:flex-start;
+  font-family:"Courier New",monospace; font-size:.75rem;
+  color:var(--ink-dim); margin-bottom:8px;
+}
+.badge{
+  background:rgba(161,52,45,.08);
+  border:1px solid var(--accent-stamp);
+  color:var(--accent-stamp); font-weight:600;
+  font-family:"Courier New",monospace; font-size:.7rem;
+  padding:2px 8px; border-radius:6px; text-transform:uppercase;
+  line-height:1.4; letter-spacing:.05em; flex-shrink:0;
+}
+h2{
+  margin:0 0 8px; color:var(--ink-dark);
+  font-size:1.15rem; font-weight:600; letter-spacing:.02em;
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:.5rem;
+  text-transform:uppercase; font-family:"Courier New",monospace;
+}
+p{ font-size:1rem; color:var(--ink-dark); margin:0 0 10px; line-height:1.55; }
+
+/* Terminal */
+.terminal{
+  background:var(--terminal-bg); border:1px solid #000; border-radius:8px;
+  padding:12px; color:var(--terminal-text);
+  font-family:"Courier New",monospace; font-size:.92rem; line-height:1.45;
+  box-shadow:0 8px 20px rgba(0,0,0,.8), 0 0 24px rgba(0,0,0,.8) inset; position:relative;
+}
+.terminal:before{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(rgba(255,255,255,.06) 0px, rgba(255,255,255,0) 2px, rgba(0,0,0,0) 3px);
+  mix-blend-mode:soft-light; pointer-events:none; opacity:.2;
+}
+.term-dim{ color:var(--terminal-dim); font-style:italic; }
+
+/* Inputs */
+.row{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; }
+.cols-2{ display:grid; gap:16px; }
+@media(min-width:860px){ .cols-2{ grid-template-columns:1fr 1fr; } }
+label.small{
+  display:block; font-family:"Courier New",monospace;
+  font-size:.85rem; color:var(--ink-dim); letter-spacing:.05em; margin-bottom:4px;
+}
+input,select,textarea{
+  width:100%; background:var(--quiz-bg); border:1px solid var(--quiz-border);
+  border-radius:10px; font-size:1rem; line-height:1.4; padding:10px 12px;
+  font-family:"EB Garamond","Georgia",serif; color:var(--ink-dark);
+}
+select{ padding:10px 8px; }
+
+/* Buttons */
+.btn{
+  appearance:none; background:var(--paper-bg);
+  border:1px solid var(--paper-edge); border-radius:12px;
+  box-shadow:0 4px 8px rgba(0,0,0,.4), 0 0 0 2px rgba(255,255,255,.4) inset;
+  cursor:pointer; font-size:1rem; line-height:1.2; font-weight:700;
+  padding:12px 14px; color:var(--ink-dark); font-family:"Courier New",monospace;
+  text-transform:uppercase; letter-spacing:.08em;
+  touch-action:manipulation;
+}
+.btn:hover{ filter:brightness(1.03); }
+.btn.danger{ color:var(--ink-alert); border-color:var(--accent-stamp); }
+.btn.secondary{ background:#f8f3e2; color:#4a4033; }
+.btn.backBtn{ background:#eee8d2; border:1px solid var(--paper-edge); color:#4a4033; }
+
+.feedback{ font-size:.95rem; font-weight:700; font-family:"Courier New",monospace; }
+.feedback.ok{ color:var(--ink-ok); }
+.feedback.bad{ color:var(--ink-alert); }
+
+/* Reveal / Archiv */
+.revealBox{
+  background:var(--paper-bg); border:1px solid var(--paper-edge);
+  border-radius:12px; box-shadow:0 6px 12px rgba(0,0,0,.2), 0 0 0 2px rgba(255,255,255,.35) inset;
+  padding:10px; margin-bottom:10px;
+}
+.revealHeader{
+  display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none;
+}
+.revealTitle{
+  font-family:"Courier New",monospace; font-size:1rem; font-weight:700; color:var(--ink-dark);
+  display:flex; gap:8px; align-items:center;
+}
+.revealTag{
+  background:rgba(199,160,90,.15); border:1px solid var(--accent-brass);
+  border-radius:8px; color:#4d3a15; font-size:.85rem; font-weight:700; padding:4px 8px;
+}
+.revealBody{ font-size:1rem; line-height:1.6; color:var(--ink-dark); margin-top:8px; }
+.hidden{ display:none !important; }
+
+/* Monitore */
+.monitor-grid{ display:grid; gap:12px; }
+@media(min-width:600px){ .monitor-grid{ grid-template-columns:repeat(2,1fr);} }
+.monitor-box{
+  background:var(--panel-inner); border:1px solid var(--panel-border); border-radius:12px;
+  box-shadow:0 10px 20px rgba(0,0,0,.6), 0 0 30px var(--panel-glow) inset;
+  padding:14px; cursor:pointer; position:relative; color:#fdf9ef; font-family:"Courier New",monospace;
+  min-height:88px;
+}
+.monitor-label{ font-size:.9rem; text-transform:uppercase; color:#bba787; letter-spacing:.08em; margin-bottom:4px; }
+.monitor-value{ font-size:1.2rem; font-weight:700; color:#fff; }
+.monitor-status{ font-size:1rem; font-weight:700; margin-top:2px; }
+.monitor-box.good{ background:var(--ok-bg); border:1px solid var(--ok-border); box-shadow:0 0 12px rgba(46,99,56,.6); }
+.monitor-box.bad{ background:var(--crit-bg); border:1px solid var(--crit-border); box-shadow:0 0 16px rgba(161,52,45,.7); }
+
+/* Energy / Points */
+.meterWrapper{
+  background:var(--panel-inner); border:1px solid var(--panel-border); border-radius:12px;
+  box-shadow:0 10px 20px rgba(0,0,0,.6), 0 0 30px var(--panel-glow) inset;
+  color:#fff; font-family:"Courier New",monospace; padding:14px; margin-top:16px;
+}
+.meterBarOuter{ width:100%; height:22px; background:#1b1b18; border:1px solid #000; border-radius:10px; overflow:hidden; box-shadow:0 0 12px rgba(199,160,90,.6) inset; }
+.meterBarFill{ height:100%; width:0%; background:linear-gradient(90deg,#2e6338,#c7a05a); box-shadow:0 0 10px rgba(199,160,90,.7); transition:width .2s linear; }
+.meterInfo{ display:flex; flex-wrap:wrap; justify-content:space-between; font-size:.95rem; color:#e8e2d0; margin-top:8px; font-weight:700; gap:8px; }
+
+/* Simulation */
+.simBox{
+  background:var(--panel-inner); border:1px solid var(--panel-border); border-radius:12px;
+  box-shadow:0 10px 20px rgba(0,0,0,.6), 0 0 30px var(--panel-glow) inset;
+  color:#fff; font-family:"Courier New",monospace; padding:16px; font-size:1rem; line-height:1.4;
+}
+.simLabelRow{ display:flex; justify-content:space-between; align-items:center; font-size:1rem; margin-top:10px; flex-wrap:wrap; gap:8px; }
+.simVal{ color:#c7a05a; font-weight:700; }
+.simBZ{ font-size:1.2rem; font-weight:800; color:#fff; }
+.rangeInput{ width:100%; accent-color:#c7a05a; height:40px; }
+#bzMeterOuter{
+  width:100%; height:20px; background:#1b1b18; border:1px solid #000; border-radius:10px; overflow:hidden;
+  box-shadow:0 0 12px rgba(161,52,45,.4) inset; margin-top:10px;
+}
+#bzMeterFill{ height:100%; width:0%; background:#a1342d; box-shadow:0 0 8px rgba(161,52,45,.6); transition:width .15s linear,background .15s linear,box-shadow .15s linear; }
+.simStatus{ font-size:1rem; font-weight:700; }
+.simStatus.ok{ color:#a7d4a7; }
+.simStatus.bad{ color:#e1a6a6; }
+
+/* Jeopardy board */
+#jeoBoard{ 
+  display:grid; gap:12px; margin-top:12px;
+  grid-template-columns: repeat(4, 1fr);
+}
+@media(max-width:760px){
+  #jeoBoard{ grid-template-columns: repeat(2, 1fr); }
+}
+.jeoBtn{
+  width:100%; margin:0; padding:18px; border:2px dashed var(--paper-edge); border-radius:12px; background:#fffaf0;
+  cursor:pointer; font-family:"Patrick Hand",cursive; font-size:1.4rem; text-align:center;
+  min-height:64px;
+}
+.jeoBtn.used{ background:#eee; cursor:not-allowed; text-decoration:line-through; }
+
+/* Jeopardy modal */
+#jeoModal{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:9990; padding:12px; }
+#jeoModal .modalInner{
+  max-width:860px; width:100%; background:var(--paper-bg); border:2px solid var(--paper-edge); border-radius:14px;
+  padding:16px; box-shadow:0 20px 60px rgba(0,0,0,.7);
+}
+#jeoModal .qHead{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+#jeoModal .qTitle{ font-weight:700; font-size:1.1rem; text-transform:none; font-family:"Courier New",monospace; }
+#jeoModal .qBody{ margin-top:8px; }
+#jeoModal .choices label{ display:block; margin:10px 0; font-size:1.05rem; cursor:pointer; }
+#jeoClose{ float:right; }
+
+/* Certificate */
+#certBox{
+  background:var(--paper-bg); border:2px solid var(--paper-edge);
+  box-shadow:0 20px 40px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.4) inset;
+  border-radius:12px; padding:16px; color:var(--ink-dark);
+}
+#certBox h3{
+  margin:0 0 8px; font-weight:700; font-size:1rem; text-transform:uppercase;
+  font-family:"Courier New",monospace; color:var(--ink-alert); letter-spacing:.08em;
+}
+#certText{ white-space:pre-line; font-family:"EB Garamond","Georgia",serif; font-size:1rem; line-height:1.5; color:var(--ink-dark); }
+
+.small{ font-size:.9rem; color:var(--ink-dim); font-family:"Courier New",monospace; line-height:1.4; }
+
+details{
+  background:#fffdf5; border:1px solid var(--quiz-border); border-radius:10px; padding:10px 12px;
+  font-size:1rem; line-height:1.45; color:var(--ink-dark); box-shadow:0 4px 10px rgba(0,0,0,.15);
+  font-family:"EB Garamond","Georgia",serif;
+}
+details summary{
+  cursor:pointer; color:var(--ink-alert); font-family:"Courier New",monospace; font-size:1rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+
+.navRow{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; margin-top:20px; }
+
+/* Drag & Drop – Kapitel 3 */
+.kartenRow{ display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; align-items:flex-start; }
+.kartenCol{
+  flex:1 1 320px; min-width:280px;
+  background:var(--quiz-bg); border:1px solid var(--quiz-border); border-radius:12px;
+  box-shadow:0 8px 16px rgba(0,0,0,.2), 0 0 0 2px rgba(255,255,255,.4) inset;
+  padding:12px; position:relative;
+}
+.kartenColHead{ font-family:"Courier New",monospace; font-size:1rem; color:var(--ink-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+.cardPool{ display:flex; flex-direction:column; gap:10px; }
+
+.dragCard{
+  background:#fffaf0; border:1px solid var(--paper-edge); border-radius:12px;
+  padding:10px 12px; cursor:grab; user-select:none;
+  font-family:"Courier New",monospace; font-size:1rem; font-weight:700; color:#2b261f;
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
+  touch-action:none;
+}
+.dragCard:active{ cursor:grabbing; transform:scale(0.98); }
+
+.dropTarget{
+  min-height:80px; background:#eee8d2;
+  border:2px dashed var(--paper-edge); border-radius:12px;
+  box-shadow:0 0 10px rgba(0,0,0,.12) inset;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:12px; color:#4a4033; font-family:"Courier New",monospace; font-size:.98rem; font-weight:700;
+}
+.dropTarget.correct{
+  background:#dff2df; border-color:#2e6338; color:#2e6338; box-shadow:0 0 12px rgba(46,99,56,.5);
+}
+.dropMsg{ font-family:"Courier New",monospace; font-size:.92rem; margin-top:6px; min-height:1em; color:var(--ink-dim); }
+.dropMsg.ok{ color:var(--ink-ok); font-weight:700; }
+.dropMsg.bad{ color:var(--ink-alert); font-weight:700; }
+
+/* Touch support hints */
+@media (pointer: coarse) {
+  .btn{ padding:14px 16px; font-size:1.05rem; }
+  .jeoBtn{ padding:22px; font-size:1.6rem; }
+  input, select { padding:14px 12px; font-size:1.05rem; }
+}
+</style>
+</head>
+
+<body>
+
+<button id="soundToggle" class="active" onclick="toggleSound()">🔊 Ton an</button>
+
+<header>
+  <h1>Operation GlucoSave</h1>
+  <p class="lead">Geheimes Notfallprotokoll · Biologielabor Fachtrakt · Klasse 9/10</p>
+</header>
+
+<main>
+
+<!-- KAPITEL 0 -->
+<section class="card" id="k0">
+  <div class="cardHead">
+    <div>AKTE NR. 000 · ZUGRIFFSEBENE: INTERN</div>
+    <div class="badge">Initialisierung</div>
+  </div>
+
+  <h2>Kapitel 0 – Der Fachtrakt</h2>
+
+  <p>Es ist später Nachmittag an den Walburgisschulen. Der Fachtrakt ist still – nur das Brummen der Lüftung und ein leises Summen der Neonröhren sind zu hören.</p>
+  <p>Ihr steht vor der verborgenen <strong>Biologiesammlung</strong> – normalerweise nur für Lehrkräfte zugänglich. Zwischen <strong>verstaubten Lehrbüchern</strong>, Glaskästen mit <strong>ausgestopften Tieren</strong> und einem <strong>alten menschlichen Skelett</strong> flackert ein Terminal auf; ein System bootet von selbst.</p>
+
+  <div class="terminal" id="termIntro">
+    <div>BOOTING SYSTEM...</div>
+    <div>MEDAI v1.3 – <span class="term-dim">medizinisches Assistenz-Interface</span></div>
+    <div>STATUS: <span class="term-dim">NOTFALLPROTOKOLL AKTIV</span></div>
+    <div>ANWEISUNG: "TEAM IDENTIFIZIEREN"</div>
+  </div>
+
+  <p class="small" style="margin-top:8px;">Registriert euer Team. Danach wird der Zugang zum Labor freigegeben.</p>
+
+  <div class="row" style="margin-top:8px;">
+    <div style="flex:1;min-width:220px;">
+      <label class="small" for="teamName">Teamname</label>
+      <input id="teamName" placeholder="z. B. BioGuard / Rettungseinheit Alpha">
+    </div>
+    <div style="flex:1;min-width:220px;">
+      <label class="small" for="schoolForm">Schulform</label>
+      <select id="schoolForm">
+        <option value="">– wählen –</option>
+        <option value="Walburgisgymnasium">Walburgisgymnasium</option>
+        <option value="Walburgisrealschule">Walburgisrealschule</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn" onclick="playClick();startGame()">Zugang anfordern</button>
+    <div id="k0msg" class="feedback"></div>
+  </div>
+</section>
+
+<!-- KAPITEL 1 -->
+<section class="card hidden" id="k1">
+  <div class="cardHead">
+    <div>AKTE NR. 101 · DIAGNOSEBLATT</div>
+    <div class="badge">Vitalstatus</div>
+  </div>
+
+  <h2>Kapitel 1 – Diagnose des Patienten</h2>
+
+  <p>Die verriegelte Tür gleitet zur Seite. Dahinter: ein verborgener Raum mit altem OP-Tisch, grellen Lampen und summenden Monitoren. Auf dem Tisch liegt eine Person, verkabelt und bewusstlos.</p>
+
+  <div class="terminal">
+    <div>Willkommen, <span id="dynTeam1">[Team]</span> vom <span id="dynSchool1">[Schulform]</span>.</div>
+    <div>Ich bin MedAI.</div>
+    <div>STATUS PATIENT: künstliches Koma.</div>
+    <div>BITTE LEITET SOFORTIGE VITALANALYSE EIN.</div>
+  </div>
+
+  <p style="margin-top:8px;">Aktiviert die Messkarten nacheinander:</p>
+
+  <div class="monitor-grid">
+    <div class="monitor-box" id="boxBP" onclick="playClick();scanVital('BP')">
+      <div class="monitor-label">Blutdruck</div>
+      <div class="monitor-value" id="valBP">[inaktiv]</div>
+      <div class="monitor-status" id="statBP">–</div>
+    </div>
+    <div class="monitor-box" id="boxPulse" onclick="playClick();scanVital('Pulse')">
+      <div class="monitor-label">Puls</div>
+      <div class="monitor-value" id="valPulse">[inaktiv]</div>
+      <div class="monitor-status" id="statPulse">–</div>
+    </div>
+    <div class="monitor-box" id="boxO2" onclick="playClick();scanVital('O2')">
+      <div class="monitor-label">Blutsauerstoff</div>
+      <div class="monitor-value" id="valO2">[inaktiv]</div>
+      <div class="monitor-status" id="statO2">–</div>
+    </div>
+    <div class="monitor-box" id="boxBrain" onclick="playClick();scanVital('Brain')">
+      <div class="monitor-label">Gehirnaktivität</div>
+      <div class="monitor-value" id="valBrain">[inaktiv]</div>
+      <div class="monitor-status" id="statBrain">–</div>
+    </div>
+    <div class="monitor-box" id="boxBZ" onclick="playClick();scanVital('BZ')">
+      <div class="monitor-label">Blutzucker</div>
+      <div class="monitor-value" id="valBZ">[inaktiv]</div>
+      <div class="monitor-status" id="statBZ">–</div>
+    </div>
+  </div>
+
+  <p class="small" style="margin-top:8px;">Hinweis: Es wirkt alles stabil – bis auf einen Wert...</p>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k0')">Zurück: Fachtrakt</button>
+    <div class="row" style="gap:8px;">
+      <button class="btn" onclick="playClick();unlockK2()">Analyse bestätigen</button>
+      <div id="k1msg" class="feedback"></div>
+    </div>
+  </div>
+</section>
+
+<!-- KAPITEL 2 -->
+<section class="card hidden" id="k2">
+  <div class="cardHead">
+    <div>ARCHIV 001 · ENERGIESTOFFWECHSEL</div>
+    <div class="badge">Glukose</div>
+  </div>
+
+  <h2>Kapitel 2 – Glukose: Treibstoff des Lebens</h2>
+
+  <p>Auf dem Laborpult liegt eine vergilbte Unterrichtsfolie. Jemand hat am Rand mit Kugelschreiber „<em>ATP = Energie!</em>“ notiert.</p>
+
+  <div class="terminal">
+    <div>MedAI: „Der Patient hat extrem hohen Blutzucker.</div>
+    <div>Ohne Kontrolle drohen Schäden an Zellen und Gefäßen.“</div>
+    <div class="term-dim">„Versteht zuerst, was Glukose eigentlich macht.“</div>
+  </div>
+
+  <div id="k2archives">
+    <div class="revealBox">
+      <div class="revealHeader" onclick="playPaper();toggleReveal('revGly')">
+        <div class="revealTitle"><span class="revealTag">ARCHIV 001-A</span> Glykolyse (Zellplasma)</div>
+        <div class="revealTitle"><span id="revGlyBtn">▼</span></div>
+      </div>
+      <div class="revealBody" id="revGly">
+        Die <strong>Glykolyse</strong> findet im <strong>Zytoplasma</strong> statt. Dabei wird Glukose zu <strong>Pyruvat</strong> abgebaut und erstes <strong>ATP</strong> gebildet.
+      </div>
+    </div>
+
+    <div class="revealBox">
+      <div class="revealHeader" onclick="playPaper();toggleReveal('revMito')">
+        <div class="revealTitle"><span class="revealTag">ARCHIV 001-B</span> Mitochondrien &amp; ATP</div>
+        <div class="revealTitle"><span id="revMitoBtn">▼</span></div>
+      </div>
+      <div class="revealBody" id="revMito">
+        In den <strong>Mitochondrien</strong> läuft die Zellatmung. Hier entsteht aus Pyruvat <strong>sehr viel ATP</strong> – die Energiewährung der Zelle.
+      </div>
+    </div>
+
+    <div class="revealBox">
+      <div class="revealHeader" onclick="playPaper();toggleReveal('revSpeicher')">
+        <div class="revealTitle"><span class="revealTag">ARCHIV 001-C</span> Speicherung von Glukose</div>
+        <div class="revealTitle"><span id="revSpeicherBtn">▼</span></div>
+      </div>
+      <div class="revealBody" id="revSpeicher">
+        Überschüssige Glukose wird als <strong>Glykogen</strong> in <strong>Leber und Muskeln</strong> gespeichert und bei Bedarf wieder freigesetzt.
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:10px;">
+    <button class="btn" onclick="playClick();k2StartQuiz()">📘 Quiz starten</button>
+  </div>
+
+  <div id="k2quiz" class="panelBlock hidden" style="margin-top:14px;">
+    <div class="panelBlockHead">
+      <div>WISSENS-TEST · ARCHIV 001</div>
+      <div class="badge">Überprüfung</div>
+    </div>
+
+    <label class="small">1) Wo findet die Glykolyse statt?</label>
+    <input id="q2_1" placeholder="z. B. ...plasma">
+    <details style="margin:6px 0 10px;">
+      <summary>ℹ️ Tipp</summary>
+      <p>Es ist der flüssige Reaktionsraum im Inneren der Zelle, außerhalb der Organellen. Hier starten viele Stoffwechselwege.</p>
+    </details>
+
+    <label class="small">2) Wie heißt die Energiewährung der Zelle?</label>
+    <input id="q2_2" placeholder="Drei Buchstaben">
+
+    <label class="small">3) In welchem Organell entsteht besonders viel davon?</label>
+    <input id="q2_3" placeholder="Name des Organells">
+
+    <label class="small">4) Wie heißt die Speicherform von Glukose in Leber und Muskel?</label>
+    <input id="q2_4" placeholder="...kogen">
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn secondary" onclick="playPaper();k2ToggleTips()">📖 Archivtexte öffnen</button>
+      <button class="btn" onclick="playClick();checkK2()">Weiter zur Hormon-Akte</button>
+      <div id="k2msg" class="feedback"></div>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k1')">Zurück: Diagnose</button>
+  </div>
+</section>
+
+<!-- KAPITEL 3 -->
+<section class="card hidden" id="k3">
+  <div class="cardHead">
+    <div>ARCHIV 002 · ENDOKRINE STEUERUNG</div>
+    <div class="badge">Hormone</div>
+  </div>
+
+  <h2>Kapitel 3 – Hormone: Botenstoffe & Wirkungen</h2>
+
+  <p>Auf dem Pult liegt die Akte <em>„Endokrine Steuerung“</em>. Darin: lose Karten mit Hormonnamen – und ein leerer Kasten mit Wirkungsfeldern.</p>
+
+  <div class="terminal">
+    <div>MedAI: „Hormone reisen über das Blut, wirken aber nur dort, wo die Zielzelle den passenden Rezeptor hat.“</div>
+  </div>
+
+  <div class="panelBlock">
+    <label class="small">Was beschreibt das Schlüssel–Schloss-Prinzip am besten?</label>
+    <select id="q3_2">
+      <option value="">– wählen –</option>
+      <option>Ein Hormon wirkt überall gleich.</option>
+      <option>Ein Hormon passt nur an ganz bestimmte Rezeptoren einer Zielzelle.</option>
+      <option>Hormone sind nur in Muskeln aktiv.</option>
+    </select>
+    <div id="k3qmsg" class="feedback" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="panelBlock" style="margin-top:16px;">
+    <div class="k artenColHead" style="font-family:'Courier New',monospace;font-size:1rem;color:var(--ink-dim);margin-bottom:6px;text-transform:uppercase;">Zuordnung: Hormon &rarr; Wirkung</div>
+    <p class="small">Zieht jede Hormon-Karte (links) auf das passende Wirkungsfeld (rechts). Wenn alle Zuordnungen korrekt sind und die Frage oben richtig beantwortet wurde, öffnet sich Archiv 004 automatisch.</p>
+
+    <div class="kartenRow">
+      <div class="kartenCol">
+        <div class="kartenColHead">Hormone (ziehen)</div>
+        <div class="cardPool" id="hormonePool">
+          <div class="dragCard" id="h_freisetzer" draggable="true" data-horm="freisetzer" ondragstart="dragStart(event)">Freisetzungshormone</div>
+          <div class="dragCard" id="h_wachstum"   draggable="true" data-horm="wachstum"   ondragstart="dragStart(event)">Wachstums-/Steuerungshormone</div>
+          <div class="dragCard" id="h_thyroxin"   draggable="true" data-horm="thyroxin"   ondragstart="dragStart(event)">Thyroxin</div>
+          <div class="dragCard" id="h_cortisol"   draggable="true" data-horm="cortisol"   ondragstart="dragStart(event)">Cortisol</div>
+          <div class="dragCard" id="h_adrenalin"  draggable="true" data-horm="adrenalin"  ondragstart="dragStart(event)">Adrenalin</div>
+          <div class="dragCard" id="h_ig"         draggable="true" data-horm="ig"         ondragstart="dragStart(event)">Insulin / Glukagon</div>
+          <div class="dragCard" id="h_oep"        draggable="true" data-horm="oep"        ondragstart="dragStart(event)">Östrogene / Progesteron</div>
+          <div class="dragCard" id="h_testo"      draggable="true" data-horm="testo"      ondragstart="dragStart(event)">Testosteron</div>
+        </div>
+      </div>
+
+      <div class="kartenCol">
+        <div class="kartenColHead">Wirkungen (ablegen)</div>
+        <div class="dropTarget" id="w_freisetzer" data-accept="freisetzer" ondragover="dragOver(event)" ondrop="dropCard(event)">beeinflussen die Freisetzung von Hormonen in der Hypophyse</div>
+        <div class="dropMsg" id="msg_freisetzer"></div>
+        <div class="dropTarget" id="w_wachstum" data-accept="wachstum" ondragover="dragOver(event)" ondrop="dropCard(event)">Wachstum; Anregung anderer Hormondrüsen zur Ausschüttung</div>
+        <div class="dropMsg" id="msg_wachstum"></div>
+        <div class="dropTarget" id="w_thyroxin" data-accept="thyroxin" ondragover="dragOver(event)" ondrop="dropCard(event)">Erhöhung des Stoffwechsels / Grundumsatzes</div>
+        <div class="dropMsg" id="msg_thyroxin"></div>
+        <div class="dropTarget" id="w_cortisol" data-accept="cortisol" ondragover="dragOver(event)" ondrop="dropCard(event)">Hemmung/Heilung von Entzündungen, Gefäßverengung</div>
+        <div class="dropMsg" id="msg_cortisol"></div>
+        <div class="dropTarget" id="w_adrenalin" data-accept="adrenalin" ondragover="dragOver(event)" ondrop="dropCard(event)">Steigerung Herz-Kreislauf, Energiereserven mobilisieren</div>
+        <div class="dropMsg" id="msg_adrenalin"></div>
+        <div class="dropTarget" id="w_ig" data-accept="ig" ondragover="dragOver(event)" ondrop="dropCard(event)">Senkung/Erhöhung des Blutzuckerspiegels</div>
+        <div class="dropMsg" id="msg_ig"></div>
+        <div class="dropTarget" id="w_oep" data-accept="oep" ondragover="dragOver(event)" ondrop="dropCard(event)">weibliche Merkmale; Zyklus; Schwangerschaft</div>
+        <div class="dropMsg" id="msg_oep"></div>
+        <div class="dropTarget" id="w_testo" data-accept="testo" ondragover="dragOver(event)" ondrop="dropCard(event)">männliche Merkmale; Muskelzunahme</div>
+        <div class="dropMsg" id="msg_testo"></div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button class="btn" id="k3go" onclick="playClick();tryOpenK4()" disabled>Archiv 004 freigeben</button>
+      <div id="k3msg" class="feedback"></div>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k2')">Zurück: Glukose</button>
+  </div>
+</section>
+
+<!-- KAPITEL 4 -->
+<section class="card hidden" id="k4">
+  <div class="cardHead">
+    <div>ARCHIV 003 · VERTRAULICH</div>
+    <div class="badge">Insulin / Glukagon</div>
+  </div>
+
+  <h2>Kapitel 4 – Insulin &amp; Glukagon: Gegenspieler</h2>
+
+  <div class="panelBlock" id="k4archive">
+    <div class="revealBox">
+      <div class="revealHeader" onclick="playPaper();toggleReveal('k4text')">
+        <div class="revealTitle">
+          <span class="revealTag">ARCHIV 004</span>
+          Endokrine Steuerung der Glukoseaufnahme
+        </div>
+        <div class="revealTitle"><span id="k4textBtn">▼</span></div>
+      </div>
+
+      <div class="revealBody" id="k4text">
+        <p>In der <strong>Bauchspeicheldrüse (Pankreas)</strong> liegen winzige Zellgruppen, die <strong>Langerhans’schen Inseln</strong> genannt werden. Diese enthalten zwei zentrale Zelltypen:</p>
+        <ul>
+          <li><strong>Beta-Zellen</strong>: bilden <strong>Insulin</strong>, das die <strong>Aufnahme von Glukose in Körperzellen</strong> (z. B. Muskeln, Leber, Fettgewebe) <strong>fördert</strong> und so den <strong>Blutzuckerspiegel senkt</strong>.</li>
+          <li><strong>Alpha-Zellen</strong>: bilden <strong>Glukagon</strong>, das in der <strong>Leber den Abbau von Glykogen zu Glukose</strong> anregt und dadurch den <strong>Blutzuckerspiegel erhöht</strong>.</li>
+        </ul>
+        <p>Beide Hormone wirken als <strong>Gegenspieler (Antagonisten)</strong> und halten den <strong>Blutzuckerspiegel im Gleichgewicht</strong>. Dieses Zusammenspiel bildet einen klassischen <strong>Regelkreis</strong>:</p>
+        <ul>
+          <li><em>Nach dem Essen</em>: Blutzucker steigt → Insulin wird ausgeschüttet → Zellen nehmen Glukose auf → Blutzucker sinkt.</li>
+          <li><em>Beim Fasten oder nach Bewegung</em>: Blutzucker sinkt → Glukagon wird freigesetzt → Leber gibt Glukose ins Blut ab → Blutzucker steigt.</li>
+        </ul>
+        <p>Die Regulation erfolgt durch <strong>negative Rückkopplung</strong>: Wenn der Blutzuckerspiegel steigt, <strong>hemmt Insulin seine eigene Ausschüttung</strong>. Sinkt der Blutzucker, wird <strong>Insulin gehemmt und Glukagon aktiviert</strong>.</p>
+        <p>Der Körper erkennt Veränderungen des Blutzuckers über <strong>Rezeptoren in der Bauchspeicheldrüse</strong> (direkte Messung) und über <strong>Rezeptoren im Hypothalamus</strong>, die langfristige Schwankungen im Energiehaushalt erfassen.</p>
+        <p>Solche Regelkreise dienen der <strong>Homöostase</strong> – also der Aufrechterhaltung innerer Gleichgewichte. Ähnliche Mechanismen steuern z. B. die <strong>Körpertemperatur</strong> oder den <strong>Wasserhaushalt</strong>.</p>
+        <p><strong>Merksatz:</strong> Insulin und Glukagon sind wie zwei Hände am Steuer des Energiehaushalts – eine bremst, die andere beschleunigt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal" style="margin-top:8px;">
+    <div>MedAI: „Fast alle Fragen müssen sitzen. Nur dann geht das Steuerpult online.“</div>
+  </div>
+
+  <div id="jeoBoard"></div>
+
+  <div class="meterWrapper">
+    <div class="meterBarOuter"><div class="meterBarFill" id="energyFill"></div></div>
+    <div class="meterInfo">
+      <div>Punkte: <span id="energyNow">0</span>/5500</div>
+      <div id="energyStatus">Steuerpult: OFFLINE (Ziel: 5500)</div>
+    </div>
+  </div>
+
+  <div id="jeoModal">
+    <div class="modalInner">
+      <div class="qHead">
+        <div class="qTitle" id="qTitle"></div>
+        <button class="btn" id="jeoClose" onclick="closeJeo()">Schließen</button>
+      </div>
+      <div class="qBody">
+        <div id="qFree" class="hidden">
+          <input id="qFreeInput" placeholder="Antwort eingeben">
+        </div>
+        <div id="qChoices" class="choices hidden"></div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn" onclick="submitJeo()">Antwort prüfen</button>
+          <div id="jeoMsg" class="feedback"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k3')">Zurück: Hormon-Akte</button>
+  </div>
+</section>
+
+<!-- KAPITEL 5 -->
+<section class="card hidden" id="k5">
+  <div class="cardHead">
+    <div>LABORSTEUERPULT · PATIENT AKTIV</div>
+    <div class="badge">Kritische Phase</div>
+  </div>
+
+  <h2>Kapitel 5 – Mission: Den Patienten stabilisieren</h2>
+
+  <div class="terminal">
+    <div>MedAI: „Team <span id="dynTeam2">[Team]</span>, Steuerpult aktiviert.“</div>
+    <div><strong>Auftrag:</strong> Reguliert Insulin und Glukagon mithilfe der Schieberegler so, dass der Blutzucker stabil bleibt.</div>
+    <div><strong>Ziel:</strong> Haltet den Wert <strong>80–120 mg/dl</strong> für <strong>12 Sekunden</strong> stabil.</div>
+  </div>
+
+  <div class="cols-2" style="margin-top:12px;">
+    <div class="simBox">
+      <div class="simLabelRow">
+        <div>Insulin-Level</div>
+        <div class="simVal" id="insulinVal">50%</div>
+      </div>
+      <input class="rangeInput" id="insulinRange" type="range" min="0" max="100" value="50" oninput="updateSimVals()">
+
+      <div class="simLabelRow">
+        <div>Glukagon-Level</div>
+        <div class="simVal" id="glukagonVal">50%</div>
+      </div>
+      <input class="rangeInput" id="glukagonRange" type="range" min="0" max="100" value="50" oninput="updateSimVals()">
+
+      <div class="simLabelRow" style="margin-top:14px;">
+        <div>Aktueller Blutzucker</div>
+        <div class="simBZ" id="bzVal">– mg/dl</div>
+      </div>
+
+      <div id="bzMeterOuter"><div id="bzMeterFill"></div></div>
+
+      <div class="simLabelRow" style="margin-top:10px;">
+        <div>Stabil im Zielbereich</div>
+        <div class="simVal" id="stableTimeVal">0 s</div>
+      </div>
+
+      <div class="simLabelRow">
+        <div>Status</div>
+        <div class="simStatus bad" id="simStatusText">instabil</div>
+      </div>
+
+      <div class="row" style="margin-top:14px;">
+        <button class="btn" onclick="playClick();startSimulation()">Simulation starten</button>
+        <button class="btn danger" onclick="playClick();checkStable()">Stabilisierung prüfen</button>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <button class="btn secondary" onclick="playPaper();toggleReveal('hintK5')">💡 Hinweise</button>
+      </div>
+
+      <div class="revealBody hidden" id="hintK5" style="margin-top:8px;">
+  <p><strong>Situation:</strong> Der Patient hat zu viel Glukose im Blut. Die Glukose kommt nicht schnell genug in die Zellen.</p>
+  <p><strong>Taktik:</strong><br>
+    Insulin vorsichtig erhöhen (fördert Aufnahme in Zellen), Glukagon senken (weniger Freisetzung aus der Leber).<br>
+    <em>Ziel: 80–120 mg/dl ≥ 12 s.</em>
+  </p>
+  <p><strong>Regelkreis:</strong> Je höher der Blutzucker, desto mehr Insulin – je niedriger, desto mehr Glukagon.</p>
+</div>
+
+
+      <div id="k5msg" class="feedback" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="panelBlock">
+      <div class="panelBlockHead">
+        <div>EINSATZLAGE</div>
+        <div class="badge">Nur Team</div>
+      </div>
+
+      <details style="margin-top:12px;">
+        <summary>Warum 80–120 mg/dl?</summary>
+        <p>Dieser Bereich ist ein typischer Normalbereich. Außerhalb davon drohen Schäden (zu hoch) oder Unterversorgung (zu niedrig).</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();backFromK5()">Zurück</button>
+  </div>
+</section>
+
+<!-- KAPITEL 7 -->
+<section class="card hidden" id="k7">
+  <div class="cardHead">
+    <div>AKTE 999 · ABSCHLUSSBERICHT</div>
+    <div class="badge">Mission erfüllt</div>
+  </div>
+
+  <h2>Epilog – Die Rettung</h2>
+
+  <div class="terminal">
+    <div>Die Monitore schlagen jetzt im ruhigen Takt. Der Raum, eben noch voller Alarm, ist in gedämpftes grünes Licht getaucht.</div>
+    <div>MedAI: „Vitalwerte stabil. Pupillenreaktion normal. Atemmuster eigenständig.“</div>
+    <div class="term-dim">„Team <span id="dynTeam3">[Team]</span> – ihr habt verstanden, wie der Körper sein Gleichgewicht verteidigt.“</div>
+    <div class="term-dim">„Insulin und Glukagon halten den Blutzucker in Balance. Ihr habt diese Balance wiederhergestellt.“</div>
+  </div>
+
+  <p>Eine Einsatzakte erscheint auf dem Terminal. In rotem Stempel steht: <strong>MISSION ABGESCHLOSSEN – HOMÖOSTASE WIEDERHERGESTELLT</strong>.</p>
+
+  <div id="certBox" style="margin-top:14px;">
+    <h3>Einsatzprotokoll · Operation GlucoSave</h3>
+    <div id="certText"></div>
+    <div class="row" style="justify-content:center;margin-top:12px;">
+      <button class="btn" onclick="playClick();showK6()">Trainingsfälle anzeigen</button>
+    </div>
+  </div>
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k5')">Zurück: Steuerpult</button>
+  </div>
+</section>
+
+<!-- KAPITEL 6 -->
+<section class="card hidden" id="k6">
+  <div class="cardHead">
+    <div>TRAININGSEINHEIT · FALLDATEIEN</div>
+    <div class="badge">Weiterbildung</div>
+  </div>
+
+  <h2>Kapitel 6 – Weitere Missionen</h2>
+
+  <p>Neue Fallakten erscheinen auf dem Terminal. Eure Aufgabe ist immer dieselbe: <strong>Reguliert Insulin und Glukagon so, dass der Blutzucker 80–120 mg/dl erreicht und dort 12 Sekunden stabil bleibt.</strong></p>
+  <div class="panelBlock">
+    <div class="panelBlockHead">
+      <div>FALL 1 · NACH DEM ESSEN</div>
+      <div class="badge">Blutzucker hoch</div>
+    </div>
+    <p><strong>Startwert:</strong> ~160 mg/dl</p>
+    <p class="small">Interpretation: Aus dem Darm gelangt viel Glukose ins Blut. Taktik: Insulin hoch, Glukagon runter – aber nicht unter 80 mg/dl schießen.</p>
+    <button class="btn" onclick="playClick();startTrainingScenario('afterMeal')">🍽️ Fall starten</button>
+  </div>
+
+  <div class="panelBlock">
+    <div class="panelBlockHead">
+      <div>FALL 2 · NACH DEM SPORT</div>
+      <div class="badge">Blutzucker niedrig</div>
+    </div>
+    <p><strong>Startwert:</strong> ~60 mg/dl</p>
+    <p class="small">Interpretation: Muskeln haben viel Glukose verbrannt. Taktik: Glukagon hoch, Insulin niedrig – Blutzucker langsam anheben.</p>
+    <button class="btn" onclick="playClick();startTrainingScenario('afterSport')">🏃 Fall starten</button>
+  </div>
+
+  <div class="panelBlock">
+    <div class="panelBlockHead">
+      <div>FALL 3 · IM SCHLAF</div>
+      <div class="badge">Feinregulation</div>
+    </div>
+    <p><strong>Startwert:</strong> ~90 mg/dl</p>
+    <p class="small">Interpretation: Grundversorgung im Ruhezustand. Taktik: Kleine Anpassungen halten den Wert nahe ~100 mg/dl.</p>
+    <button class="btn" onclick="playClick();startTrainingScenario('duringSleep')">🌙 Fall starten</button>
+  </div>
+
+  <!-- 🧩 Dynamischer Hinweisbereich (einmalig für alle Fälle) -->
+  <div class="row" style="margin-top:8px;">
+    <button class="btn secondary" onclick="playPaper();toggleReveal('hintTraining')">💡 Hinweise</button>
+  </div>
+
+  <div class="revealBody hidden" id="hintTraining" style="margin-top:8px;">
+    <!-- Inhalt wird dynamisch durch updateTrainingHint() erzeugt -->
+  </div>
+
+
+  <div class="navRow">
+    <button class="btn backBtn" onclick="playClick();goBack('k7')">Zurück: Epilog</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ----------------- SOUND ----------------- */
+let soundEnabled = true;
+let audioCtx = null;
+
+function ensureAudio(){
+  if(audioCtx) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  audioCtx = new Ctx();
+}
+
+function startAmbient(){
+  ensureAudio();
+  if(window._ambient) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 70;
+  gain.gain.value = 0.02;
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+  window._ambient = {osc,gain};
+}
+function stopAmbient(){
+  if(window._ambient){
+    try{ window._ambient.osc.stop(); }catch(e){}
+    window._ambient.osc.disconnect();
+    window._ambient = null;
+  }
+}
+
+function playClick(){
+  if(!soundEnabled) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type='square'; o.frequency.value=800;
+  g.gain.value=0.03;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>{o.stop();},80);
+}
+function playPaper(){
+  if(!soundEnabled) return;
+  ensureAudio();
+  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.2, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++){
+    data[i]=(Math.random()*2-1)*(1-i/data.length);
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer=buffer;
+  const g = audioCtx.createGain();
+  g.gain.value=0.05;
+  src.connect(g).connect(audioCtx.destination);
+  src.start();
+}
+function playSuccess(){
+  if(!soundEnabled) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type='triangle'; o.frequency.value=660;
+  g.gain.value=0.04;
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  setTimeout(()=>{o.frequency.value=990;},120);
+  setTimeout(()=>{o.stop();},260);
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('soundToggle');
+  if(soundEnabled){
+    btn.textContent = '🔊 Ton an';
+    btn.classList.add('active');
+    startAmbient();
+    playClick();
+  }else{
+    btn.textContent = '🔇 Ton aus';
+    btn.classList.remove('active');
+    stopAmbient();
+  }
+  try{ localStorage.setItem('gluco_sound', soundEnabled? 'on':'off'); }catch(e){}
+}
+
+(function initSoundPref(){
+  try{
+    const s = localStorage.getItem('gluco_sound');
+    if(s==='off'){
+      soundEnabled=false;
+      const btn = document.getElementById('soundToggle');
+      btn.textContent='🔇 Ton aus';
+      btn.classList.remove('active');
+    }
+  }catch(e){}
+  if(soundEnabled){ startAmbient(); }
+})();
+
+/* ----------------- GLOBALS ----------------- */
+const TRANSITION_DELAY = 1800;
+let TEAM = "", SCHOOL = "";
+let vitalsScanned = { BP:false, Pulse:false, O2:false, Brain:false, BZ:false };
+
+let energyPoints = 0;
+const JEOPARDY_MAX  = 6000;
+const JEOPARDY_GOAL = 5500;
+
+let currentJeo = null;
+
+let bz = 245;
+let stableTime = 0;
+let simInterval = null;
+let scenarioNoise = 0.8;
+let scenarioBias = 0.3;
+let fromTraining = false;
+
+function normVal(s){
+  return (s||"").trim().toUpperCase()
+   .replace(/[Ä]/g,"AE").replace(/[Ö]/g,"OE").replace(/[Ü]/g,"UE").replace(/[ẞ]/g,"SS");
+}
+function showSection(hideId, showId){
+  const a = document.getElementById(hideId);
+  const b = document.getElementById(showId);
+  a.classList.add('leaving');
+  setTimeout(()=>{
+    a.classList.add('hidden');
+    a.classList.remove('leaving');
+
+    // shuffle K3 cards on entry
+    if(showId==='k3'){ shuffleHormones(); }
+
+    // === Neuer Ablauf: erst zeigen, dann initialisieren ===
+    b.classList.remove('hidden');
+    b.classList.add('entering');
+    requestAnimationFrame(()=>{
+      b.classList.remove('entering');
+
+      // K4: Jeopardy erst NACH Anzeige aufbauen
+      if(showId==='k4'){
+        const body = document.getElementById('k4text');
+        const btn  = document.getElementById('k4textBtn');
+        if(body && body.classList.contains('hidden')) body.classList.remove('hidden');
+        if(btn) btn.textContent = '▲';
+        buildJeopardyBoard();
+      }
+    });
+
+    window.scrollTo({top:0,behavior:"smooth"});
+  }, TRANSITION_DELAY);
+}
+function goBack(targetId){
+  const sections = document.querySelectorAll('section.card');
+  let currentId = null;
+  sections.forEach(sec=>{ if(!sec.classList.contains('hidden')) currentId = sec.id; });
+  if(currentId && currentId!==targetId){ showSection(currentId,targetId); }
+}
+function toggleReveal(id){
+  const body = document.getElementById(id);
+  if(!body){
+    console.warn("toggleReveal: Element mit ID", id, "nicht gefunden.");
+    return;
+  }
+
+  // auf/zu klappen
+  const isHidden = body.classList.contains("hidden");
+  body.classList.toggle("hidden");
+
+  // optional: Pfeil-Icon (z. B. k4textBtn). Für hintSim gibt es so einen Button nicht, also passiert hier einfach nichts.
+  const btn = document.getElementById(id + "Btn");
+  if(btn){
+    btn.textContent = isHidden ? "▲" : "▼";
+  }
+}
+
+/* ----------------- K0 ----------------- */
+function startGame(){
+  const t = document.getElementById("teamName").value.trim();
+  const s = document.getElementById("schoolForm").value.trim();
+  if(!s){ setFeedback("k0msg", false, "Bitte Schulform wählen."); return; }
+  TEAM = t || "Walburgis-Team"; SCHOOL = s;
+  document.getElementById("dynTeam1").textContent = TEAM;
+  document.getElementById("dynSchool1").textContent = SCHOOL;
+  document.getElementById("dynTeam2").textContent = TEAM;
+  document.getElementById("dynTeam3").textContent = TEAM;
+  showSection("k0","k1");
+}
+
+/* ----------------- K1 ----------------- */
+function scanVital(which){
+  if(which==="BP"){
+    vitalsScanned.BP = true;
+    setVitalBox("boxBP","valBP","statBP","120/80 mmHg","stabil",true);
+  }
+  if(which==="Pulse"){
+    vitalsScanned.Pulse = true;
+    setVitalBox("boxPulse","valPulse","statPulse","72 bpm","stabil",true);
+  }
+  if(which==="O2"){
+    vitalsScanned.O2 = true;
+    setVitalBox("boxO2","valO2","statO2","98 %","stabil",true);
+  }
+  if(which==="Brain"){
+    vitalsScanned.Brain = true;
+    setVitalBox("boxBrain","valBrain","statBrain","aktiv, normal","stabil",true);
+  }
+  if(which==="BZ"){
+    vitalsScanned.BZ = true;
+    setVitalBox("boxBZ","valBZ","statBZ","247 mg/dl","kritisch!",false);
+  }
+}
+function setVitalBox(boxId,valId,statId,val,stat,isOk){
+  const box = document.getElementById(boxId);
+  box.classList.remove("good","bad");
+  box.classList.add(isOk?"good":"bad");
+  document.getElementById(valId).textContent = val;
+  const st = document.getElementById(statId);
+  st.textContent = stat;
+}
+function unlockK2(){
+  const allDone = vitalsScanned.BP && vitalsScanned.Pulse && vitalsScanned.O2 && vitalsScanned.Brain && vitalsScanned.BZ;
+  if(!allDone){ setFeedback("k1msg", false, "Noch nicht alle Parameter geprüft."); return; }
+  setFeedback("k1msg", true, "Analyse vollständig. Weiter zur Energiestoffwechsel-Akte …");
+  setTimeout(()=>{ showSection("k1","k2"); }, TRANSITION_DELAY);
+}
+
+/* ----------------- K2 ----------------- */
+function k2StartQuiz(){
+  ["revGly","revMito","revSpeicher"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el.classList.contains('hidden')) el.classList.add('hidden');
+    const b = document.getElementById(id+"Btn"); if(b) b.textContent="▼";
+  });
+  document.getElementById('k2archives').classList.add('hidden');
+  document.getElementById('k2quiz').classList.remove('hidden');
+}
+function k2ToggleTips(){
+  const ids = ["revGly","revMito","revSpeicher"];
+  const allClosed = ids.every(id=>document.getElementById(id).classList.contains('hidden'));
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    const b = document.getElementById(id+"Btn");
+    if(allClosed){ el.classList.remove('hidden'); if(b) b.textContent="▲"; }
+    else { el.classList.add('hidden'); if(b) b.textContent="▼"; }
+  });
+  if(allClosed){ document.getElementById('k2archives').classList.remove('hidden'); }
+  else { document.getElementById('k2archives').classList.add('hidden'); }
+}
+function checkK2(){
+  const a1 = normVal(document.getElementById("q2_1").value);
+  const a2 = normVal(document.getElementById("q2_2").value);
+  const a3 = normVal(document.getElementById("q2_3").value);
+  const a4 = normVal(document.getElementById("q2_4").value);
+  const ok1 = (a1.includes("ZYTO")||a1.includes("CYTO")||a1.includes("PLASMA"));
+  const ok2 = (a2==="ATP");
+  const ok3 = (a3.includes("MITO"));
+  const ok4 = (a4.includes("GLYKO")||a4.includes("GLYCO"));
+  if(ok1 && ok2 && ok3 && ok4){
+    setFeedback("k2msg", true, "Verstanden. Zugriff auf hormonelle Steuerung erlaubt …");
+    setTimeout(()=>{ showSection("k2","k3"); }, TRANSITION_DELAY);
+  } else {
+    setFeedback("k2msg", false, "Nicht ganz korrekt. Nutzt die Archivtexte als Tipp.");
+  }
+}
+
+/* ----------------- K3 ----------------- */
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.id==="q3_2"){
+    const val=e.target.value||"";
+    if(val.startsWith("Ein Hormon passt nur")){
+      setFeedback("k3qmsg", true, "Richtig – spezifische Rezeptoren bestimmen die Wirkung.");
+      tryOpenK4();
+    }else if(val===""){
+      document.getElementById("k3qmsg").textContent="";
+    }else{
+      setFeedback("k3qmsg", false, "Nicht korrekt. Prüft die Spezifität von Rezeptoren.");
+    }
+  }
+});
+let draggedId = null;
+const dropPairs = {
+  freisetzer:false, wachstum:false, thyroxin:false, cortisol:false,
+  adrenalin:false, ig:false, oep:false, testo:false
+};
+function dragStart(ev){ draggedId = ev.target.id; }
+function dragOver(ev){ ev.preventDefault(); }
+function dropCard(ev){
+  ev.preventDefault();
+  if(!draggedId) return;
+  const cardEl = document.getElementById(draggedId);
+  if(!cardEl) return;
+  const hormone = cardEl.getAttribute("data-horm");
+  const accept  = ev.currentTarget.getAttribute("data-accept");
+  const msgId   = "msg_" + accept;
+  const msgBox  = document.getElementById(msgId);
+  if(hormone === accept){
+    ev.currentTarget.classList.add("correct");
+    ev.currentTarget.textContent = cardEl.textContent.trim();
+    if(msgBox){ msgBox.textContent="✔ passt!"; msgBox.classList.remove("bad"); msgBox.classList.add("ok"); }
+    dropPairs[accept] = true;
+    cardEl.setAttribute("draggable","false");
+    cardEl.style.opacity="0.4"; cardEl.style.cursor="default";
+    playSuccess();
+    tryOpenK4();
+  } else {
+    if(msgBox){ msgBox.textContent="✖ falsche Karte"; msgBox.classList.remove("ok"); msgBox.classList.add("bad"); }
+  }
+}
+function allPairsCorrect(){ return Object.values(dropPairs).every(v=>v); }
+function tryOpenK4(){
+  const qOK = (document.getElementById("q3_2").value||"").startsWith("Ein Hormon passt nur");
+  const pairsOK = allPairsCorrect();
+  const goBtn = document.getElementById("k3go");
+  if(goBtn) goBtn.disabled = !(qOK && pairsOK);
+  if(qOK && pairsOK){
+    setFeedback("k3msg", true, "Alle Zuordnungen korrekt! Archiv 004 öffnet …");
+    setTimeout(()=>{ showSection("k3","k4"); }, TRANSITION_DELAY);
+  }
+}
+function shuffleHormones(){
+  const pool = document.getElementById("hormonePool");
+  if(!pool) return;
+  const cards = Array.from(pool.children);
+  for(let i = cards.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    pool.appendChild(cards[j]);
+  }
+}
+
+/* ----------------- K4 – JEOPARDY ----------------- */
+
+const questions = [
+  /* 100 Punkte */
+  {points:100, text:"Welche Zellen in der Bauchspeicheldrüse produzieren Glukagon?", type:"choices", choices:["D-Zellen","Alpha-Zellen","Beta-Zellen"], answer:"Alpha-Zellen"},
+  {points:100, text:"Wo wird Insulin gebildet?", type:"choices", choices:["In der Milz","In der Leber","In den Beta-Zellen der Bauchspeicheldrüse"], answer:"In den Beta-Zellen der Bauchspeicheldrüse"},
+  {points:100, text:"Was bewirkt Insulin in Muskelzellen?", type:"choices", choices:["Es blockiert ATP-Produktion","Es fördert die Glukoseaufnahme","Es verhindert Energieverbrauch"], answer:"Es fördert die Glukoseaufnahme"},
+  {points:100, text:"Der Körper reagiert auf niedrigen Blutzucker ähnlich wie ein ...", type:"choices", choices:["Wasserhahn","Thermostat bei zu niedriger Temperatur","Lichtschalter"], answer:"Thermostat bei zu niedriger Temperatur"},
+
+  /* 200 Punkte */
+{points:200, text:"Was passiert mit dem Blutzuckerspiegel, wenn Insulin fehlt?", 
+ type:"choices", choices:["Er bleibt gleich","Er sinkt stark","Er steigt deutlich"], 
+ answer:"Er steigt deutlich"},
+  {points:200, text:"Was bewirkt Glukagon in der Leber?", type:"choices", choices:["Glykogenabbau zu Glukose","Aufnahme von Zucker","Wasserspeicherung"], answer:"Glykogenabbau zu Glukose"},
+  {points:200, text:"Was beschreibt die Beziehung: „Je mehr Glukose, desto …“?", type:"choices", choices:["mehr Insulin","mehr Glukagon","weniger Insulin"], answer:"mehr Insulin"},
+  {points:200, text:"Ein anderer Regelkreis im Körper ist ...", type:"choices", choices:["Muskelkontraktion","Regelung der Körpertemperatur","Verdauung von Eiweißen"], answer:"Regelung der Körpertemperatur"},
+
+  /* 300 Punkte */
+  {points:300, text:"Wie heißen die Zellgruppen, in denen Insulin und Glukagon produziert werden?", type:"choices", choices:["Nebennierenrinde","Langerhans’sche Inseln","Hypophyse"], answer:"Langerhans’sche Inseln"},
+  {points:300, text:"Warum senkt Insulin den Blutzucker?", type:"choices", choices:["Es hemmt Glukagon","Es fördert Glukoseaufnahme in Zellen","Es wandelt Zucker in Fett um"], answer:"Es fördert Glukoseaufnahme in Zellen"},
+  {points:300, text:"Was passiert bei dauerhaft hohem Blutzucker?", type:"choices", choices:["ATP-Mangel","Glukagonmangel","Insulinresistenz"], answer:"Insulinresistenz"},
+  {points:300, text:"Was passiert mit Insulin nach dem Sport?", type:"choices", choices:["Beide sinken","Insulinspiegel sinkt, Glukagon steigt","Beide steigen"], answer:"Insulinspiegel sinkt, Glukagon steigt"},
+
+  /* 400 Punkte */
+  {points:400, text:"In welchem Organ werden sowohl Insulin als auch Verdauungsenzyme produziert?", type:"choices", choices:["Leber","Dünndarm","Bauchspeicheldrüse"], answer:"Bauchspeicheldrüse"},
+  {points:400, text:"Welches Organ speichert Glykogen und gibt bei Bedarf Glukose ab?", type:"choices", choices:["Muskel","Leber","Niere"], answer:"Leber"},
+  {points:400, text:"Welche Folge hat eine Unterzuckerung für die Hormonfreisetzung?", type:"choices", choices:["Mehr Glukagon, weniger Insulin","Keine Änderung","Mehr Insulin, weniger Glukagon"], answer:"Mehr Glukagon, weniger Insulin"},
+  {points:400, text:"Warum ist Insulin ein Beispiel für negative Rückkopplung?", type:"choices", choices:["Es verstärkt den Reiz","Es hat keine Rückwirkung","Es senkt den Reiz, der seine Ausschüttung auslöst"], answer:"Es senkt den Reiz, der seine Ausschüttung auslöst"},
+
+  /* 500 Punkte */
+  {points:500, text:"Was bedeutet „negative Rückkopplung“ im Körper?", type:"choices", choices:["Eine Rückmeldung, die sie verstärkt","Keine Rückmeldung","Eine Rückmeldung, die der Ausgangsreaktion entgegenwirkt"], answer:"Eine Rückmeldung, die der Ausgangsreaktion entgegenwirkt"},
+  {points:500, text:"Was passiert in Muskelzellen bei Insulinmangel?", type:"choices", choices:["ATP-Produktion steigt","Glukoseaufnahme sinkt","Glykogenabbau sinkt"], answer:"Glukoseaufnahme sinkt"},
+  {points:500, text:"Wie erkennt der Körper einen veränderten Blutzuckerspiegel?", type:"choices", choices:["Durch Rezeptoren in der Haut","Durch Rezeptoren im Herzmuskel","Durch Rezeptoren in der Bauchspeicheldrüse und im Hypothalamus"], answer:"Durch Rezeptoren in der Bauchspeicheldrüse und im Hypothalamus"},
+  {points:500, text:"Warum kann Stress den Blutzucker erhöhen?", type:"choices", choices:["Cortisol & Adrenalin fördern Glukosefreisetzung","Glukagon sinkt","Insulin steigt stark"], answer:"Cortisol & Adrenalin fördern Glukosefreisetzung"}
+];
+
+function buildJeopardyBoard(){
+  const board = document.getElementById('jeoBoard');
+  if(!board) return;
+  board.innerHTML = "";
+  questions.forEach((q, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'jeoBtn';
+    b.id = 'jb_'+idx;
+    b.textContent = q.points.toString();
+    b.addEventListener('click', ()=>{
+      playClick();
+      openJeoByIndex(idx);
+      // === Neu: Archiv automatisch einklappen ===
+      const k4text = document.getElementById("k4text");
+      const btn = document.getElementById("k4textBtn");
+      if(k4text && !k4text.classList.contains("hidden")) k4text.classList.add("hidden");
+      if(btn) btn.textContent = "▼";
+    });
+    board.appendChild(b);
+  });
+}
+
+function openJeoByIndex(idx){
+  const q = questions[idx];
+  currentJeo = { idx, points:q.points, type:q.type, choices:q.choices, answer:q.answer, buttonId:'jb_'+idx };
+  document.getElementById('qTitle').textContent = q.text;
+  document.getElementById('jeoMsg').textContent = "";
+  const free = document.getElementById('qFree');
+  const ch   = document.getElementById('qChoices');
+  if(q.type==='free'){
+    free.classList.remove('hidden');
+    ch.classList.add('hidden');
+    document.getElementById('qFreeInput').value="";
+  } else {
+    free.classList.add('hidden');
+    ch.classList.remove('hidden');
+    ch.innerHTML = "";
+    q.choices.forEach(c=>{
+      const id = 'choice_'+Math.random().toString(36).slice(2,8);
+      ch.innerHTML += `<label><input id="${id}" type="radio" name="qchoice" value="${c}"> ${c}</label>`;
+    });
+  }
+  document.getElementById('jeoModal').style.display="flex";
+}
+function closeJeo(){ document.getElementById('jeoModal').style.display="none"; }
+
+function submitJeo(){
+  if(!currentJeo) return;
+  const q = questions[currentJeo.idx];
+  let correct = false;
+  if(q.type==='choices'){
+    const sel = document.querySelector('input[name="qchoice"]:checked');
+    if(!sel){ setFeedback("jeoMsg", false, "Bitte eine Antwort wählen."); return; }
+    correct = (sel.value === q.answer);
+  } else {
+    const val = normVal(document.getElementById('qFreeInput').value);
+    if(!val){ setFeedback("jeoMsg", false, "Bitte eine Antwort eingeben."); return; }
+    if(Array.isArray(q.answer)){ correct = q.answer.some(tok=> val.includes(tok)); }
+    else { correct = val.includes(normVal(q.answer)); }
+  }
+
+  if(correct){
+    setFeedback("jeoMsg", true, "Richtig! +"+q.points+" Punkte.");
+    playSuccess();
+    energyPoints = Math.min(JEOPARDY_MAX, energyPoints + q.points);
+    document.getElementById("energyNow").textContent = energyPoints.toString();
+    const pct = (energyPoints/JEOPARDY_GOAL)*100;
+    document.getElementById("energyFill").style.width = Math.min(pct,100)+"%";
+
+    if(currentJeo.buttonId){
+      const b = document.getElementById(currentJeo.buttonId);
+      if(b){ b.classList.add('used'); b.disabled = true; }
+    }
+
+    if(energyPoints >= JEOPARDY_GOAL){
+      document.getElementById("energyStatus").textContent = "Steuerpult: ONLINE";
+      fromTraining = false;
+      setTimeout(()=>{ closeJeo(); showSection("k4","k5"); }, TRANSITION_DELAY);
+    }
+  } else {
+    setFeedback("jeoMsg", false, "Nicht ganz. Versucht es noch einmal.");
+  }
+}
+/* ----------------- FEEDBACK FIX ----------------- */
+function setFeedback(id, success, msg){
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  // Textinhalt einsetzen
+  el.textContent = msg;
+
+  // Farb-Feedback setzen
+  if (success) {
+    el.style.color = "#2e6338";  // grünlich
+  } else {
+    el.style.color = "#a1342d";  // rötlich
+  }
+
+  // Optional: sanfter Übergang
+  el.style.transition = "color 0.3s ease";
+}
+
+
+/* ----------------- K5 – SIM ----------------- */
+function updateSimVals(){
+  document.getElementById("insulinVal").textContent = document.getElementById("insulinRange").value+"%";
+  document.getElementById("glukagonVal").textContent = document.getElementById("glukagonRange").value+"%";
+}
+function startSimulation(){
+  if(typeof bz === "undefined" || isNaN(bz)) {
+    // falls kein Szenario geladen: Standardwert
+    bz = 245;
+  }
+  stableTime = 0;
+  scenarioNoise = 0.8;
+  scenarioBias = 0.3;
+
+  updateSimDisplay();
+  if(simInterval) clearInterval(simInterval);
+  simInterval = setInterval(simStep,400);
+  setFeedback("k5msg", true, "Simulation gestartet. Ziel: 80–120 mg/dl ≥ 12 s.");
+}
+
+function simStep(){
+  const insulin  = parseInt(document.getElementById("insulinRange").value,10);
+  const glucagon = parseInt(document.getElementById("glukagonRange").value,10);
+  const eff  = (glucagon - insulin)*0.1;
+  const rand = (Math.random()-0.5)*scenarioNoise;
+  bz += eff + scenarioBias + rand;
+  if(bz<40) bz=40;
+  if(bz>260) bz=260;
+  if(bz>=80 && bz<=120){ stableTime += 0.4; } else { stableTime = Math.max(0,stableTime-0.4); }
+  updateSimDisplay();
+}
+function updateSimDisplay(){
+  document.getElementById("bzVal").textContent = bz.toFixed(1)+" mg/dl";
+  document.getElementById("stableTimeVal").textContent = Math.floor(stableTime)+" s";
+  const pct = Math.max(0,Math.min(100,(bz-40)/(260-40)*100));
+  const fillEl = document.getElementById("bzMeterFill");
+  fillEl.style.width = pct+"%";
+  if(bz>120){
+    fillEl.style.background = "#a1342d"; fillEl.style.boxShadow = "0 0 8px rgba(161,52,45,.6)";
+    document.getElementById("simStatusText").textContent="zu hoch";
+    document.getElementById("simStatusText").className="simStatus bad";
+  } else if(bz<80){
+    fillEl.style.background = "#cfa253"; fillEl.style.boxShadow = "0 0 8px rgba(199,160,90,.6)";
+    document.getElementById("simStatusText").textContent="zu niedrig";
+    document.getElementById("simStatusText").className="simStatus bad";
+  } else {
+    fillEl.style.background = "#2e6338"; fillEl.style.boxShadow = "0 0 8px rgba(46,99,56,.7)";
+    document.getElementById("simStatusText").textContent="stabil";
+    document.getElementById("simStatusText").className="simStatus ok";
+  }
+}
+function checkStable(){
+  if(stableTime>=12){
+    if(simInterval) clearInterval(simInterval);
+    setFeedback("k5msg", true, "Vitalwerte stabil. Patient erwacht …");
+    buildCertificate();
+    playSuccess();
+    setTimeout(()=>{ showSection("k5","k7"); }, TRANSITION_DELAY);
+  } else {
+    setFeedback("k5msg", false, "Noch nicht lange genug stabil. Ziel: ≥12 s im Bereich 80–120 mg/dl.");
+  }
+}
+function backFromK5(){
+  if(fromTraining){ showSection("k5","k6"); }
+  else { showSection("k5","k4"); }
+}
+/* ----------------- K5 – SIM ----------------- */
+function updateSimVals(){
+  document.getElementById("insulinVal").textContent = document.getElementById("insulinRange").value+"%";
+  document.getElementById("glukagonVal").textContent = document.getElementById("glukagonRange").value+"%";
+}
+function startSimulation(){
+  if(typeof bz === "undefined" || isNaN(bz)) {
+    // falls kein Szenario geladen: Standardwert
+    bz = 245;
+  }
+  stableTime = 0;
+  scenarioNoise = 0.8;
+  scenarioBias = 0.3;
+
+  updateSimDisplay();
+  if(simInterval) clearInterval(simInterval);
+  simInterval = setInterval(simStep,400);
+  setFeedback("k5msg", true, "Simulation gestartet. Ziel: 80–120 mg/dl ≥ 12 s.");
+}
+
+function simStep(){
+  const insulin  = parseInt(document.getElementById("insulinRange").value,10);
+  const glucagon = parseInt(document.getElementById("glukagonRange").value,10);
+  const eff  = (glucagon - insulin)*0.1;
+  const rand = (Math.random()-0.5)*scenarioNoise;
+  bz += eff + scenarioBias + rand;
+  if(bz<40) bz=40;
+  if(bz>260) bz=260;
+  if(bz>=80 && bz<=120){ stableTime += 0.4; } else { stableTime = Math.max(0,stableTime-0.4); }
+  updateSimDisplay();
+}
+function updateSimDisplay(){
+  document.getElementById("bzVal").textContent = bz.toFixed(1)+" mg/dl";
+  document.getElementById("stableTimeVal").textContent = Math.floor(stableTime)+" s";
+  const pct = Math.max(0,Math.min(100,(bz-40)/(260-40)*100));
+  const fillEl = document.getElementById("bzMeterFill");
+  fillEl.style.width = pct+"%";
+  if(bz>120){
+    fillEl.style.background = "#a1342d"; fillEl.style.boxShadow = "0 0 8px rgba(161,52,45,.6)";
+    document.getElementById("simStatusText").textContent="zu hoch";
+    document.getElementById("simStatusText").className="simStatus bad";
+  } else if(bz<80){
+    fillEl.style.background = "#cfa253"; fillEl.style.boxShadow = "0 0 8px rgba(199,160,90,.6)";
+    document.getElementById("simStatusText").textContent="zu niedrig";
+    document.getElementById("simStatusText").className="simStatus bad";
+  } else {
+    fillEl.style.background = "#2e6338"; fillEl.style.boxShadow = "0 0 8px rgba(46,99,56,.7)";
+    document.getElementById("simStatusText").textContent="stabil";
+    document.getElementById("simStatusText").className="simStatus ok";
+  }
+}
+function checkStable(){
+  if(stableTime>=12){
+    if(simInterval) clearInterval(simInterval);
+    setFeedback("k5msg", true, "Vitalwerte stabil. Patient erwacht …");
+    buildCertificate();
+    playSuccess();
+    setTimeout(()=>{ showSection("k5","k7"); }, TRANSITION_DELAY);
+  } else {
+    setFeedback("k5msg", false, "Noch nicht lange genug stabil. Ziel: ≥12 s im Bereich 80–120 mg/dl.");
+  }
+}
+function backFromK5(){
+  if(fromTraining){ showSection("k5","k6"); }
+  else { showSection("k5","k4"); }
+}
+/* ----------------- TRAININGSFALL-STEUERUNG ----------------- */
+function startTrainingScenario(caseId){
+  if (simInterval) clearInterval(simInterval);
+  fromTraining = true;
+
+  // 🔹 Startwerte je Fall
+  if (caseId === "afterMeal") bz = 160;
+  if (caseId === "afterSport") bz = 60;
+  if (caseId === "duringSleep") bz = 90;
+
+  stableTime = 0;
+
+  // 🔹 Dynamische Hinweise erzeugen
+  updateTrainingHint(caseId);
+
+  // 🔹 Schieberegler zurücksetzen
+  document.getElementById("insulinRange").value = 50;
+  document.getElementById("glukagonRange").value = 50;
+  updateSimVals();
+
+  // 🔹 Zum Steuerpult springen
+  showSection("k6", "k5");
+
+  // 🔹 Simulation starten
+  startSimulation();
+}
+
+/* Dynamische Hinweistexte für Trainingsfälle */
+function updateTrainingHint(caseId) {
+  // 💡 Ziel ist der Hinweisbereich im Steuerpult (Kapitel 5)
+  const hintEl = document.getElementById("hintK5");
+  if (!hintEl) return;
+
+  let html = "";
+  switch (caseId) {
+    case "afterMeal":
+      html = `
+        <p><strong>Situation:</strong> Nach dem Essen gelangt viel Glukose ins Blut.</p>
+        <p><strong>Taktik:</strong> Insulin erhöhen (fördert Glukoseaufnahme), Glukagon senken (verringert Freisetzung aus der Leber).</p>
+        <p><em>Ziel:</em> Blutzucker langsam in den Bereich 80–120 mg/dl senken, nicht unter 80 mg/dl fallen.</p>`;
+      break;
+
+    case "afterSport":
+      html = `
+        <p><strong>Situation:</strong> Nach dem Sport ist der Blutzucker niedrig, da Muskeln viel Glukose verbraucht haben.</p>
+        <p><strong>Taktik:</strong> Glukagon erhöhen (fördert Glukosefreisetzung), Insulin niedrig halten.</p>
+        <p><em>Ziel:</em> Blutzucker sanft anheben, 80–120 mg/dl erreichen.</p>`;
+      break;
+
+    case "duringSleep":
+      html = `
+        <p><strong>Situation:</strong> Während des Schlafs läuft die Grundversorgung langsam ab.</p>
+        <p><strong>Taktik:</strong> Nur geringe Anpassungen vornehmen, um Blutzucker um 100 mg/dl stabil zu halten.</p>
+        <p><em>Ziel:</em> Ruhige Stabilität im Bereich 80–120 mg/dl.</p>`;
+      break;
+
+    default:
+      html = `
+        <p><strong>Situation:</strong> Der Patient hat zu viel Glukose im Blut.</p>
+        <p><strong>Taktik:</strong> Insulin leicht erhöhen, Glukagon senken.</p>
+        <p><em>Ziel:</em> 80–120 mg/dl für mindestens 12 s halten.</p>`;
+  }
+
+  hintEl.innerHTML = html;
+  hintEl.classList.remove("hidden");
+}
+
+
+
+/* ----------------- K7 ----------------- */
+function buildCertificate(){
+  const today = new Date().toLocaleDateString("de-DE");
+  const txt = [
+    "EINSATZBERICHT",
+    "Team: "+TEAM,
+    "Schulform: "+SCHOOL,
+    "Datum: "+today,
+    "",
+    "Status: Patient stabilisiert.",
+    "Blutzucker 80–120 mg/dl gehalten",
+    "und mindestens 12 s stabilisiert.",
+    "",
+    "Insulin & Glukagon als Gegenspieler korrekt eingesetzt.",
+    "Homöostase wiederhergestellt.",
+    "",
+    "Operation GlucoSave: ERFOLG."
+  ].join("\n");
+  document.getElementById("certText").textContent = txt;
+  document.getElementById("dynTeam3").textContent = TEAM;
+}
+function showK6(){ showSection("k7","k6"); }
+
+/* ----------------- Training ----------------- */
+function loadScenario(type){
+  if(simInterval) clearInterval(simInterval);
+  fromTraining = true;
+  if(type==="essen"){ scenarioBias = 0.5; scenarioNoise = 0.6; bz = 160; }
+  if(type==="sport"){ scenarioBias = -0.4; scenarioNoise = 0.8; bz = 60; }
+  if(type==="schlaf"){ scenarioBias = 0.0; scenarioNoise = 0.3; bz = 90; }
+  stableTime = 0;
+  document.getElementById("insulinRange").value = 50;
+  document.getElementById("glukagonRange").value = 50;
+  updateSimVals(); updateSimDisplay();
+  setFeedback("k5msg", true, "Trainingsfall geladen. Ziel: 80–120 mg/dl ≥ 12 s.");
+  showSection("k6","k5");
+  simInterval = setInterval(simStep,400);
+}
+</script>
+
+<p class="small" style="text-align:center;margin-top:16px;color:#6b5a40;">
+  © 2025 Thomas Werneke · Walburgisschulen Menden
+</p>
+
+</body>
+</html>
