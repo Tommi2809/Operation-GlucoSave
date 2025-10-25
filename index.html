@@ -1633,7 +1633,6 @@ function checkAllAssigned() {
 /* 1. Visuelles "ich werde gerade gezogen" bei Touch */
 document.querySelectorAll(".dragCard").forEach(card => {
   card.addEventListener("touchstart", e => {
-    e.preventDefault();
     card.classList.add("dragging");
   });
 
