@@ -368,7 +368,7 @@ details summary{
 
 .navRow{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; margin-top:20px; }
 
-/* Drag & Drop – Kapitel 3 */
+/* Kapitel 3 - Zuordnung durch Tippen*/
 .kartenRow{ display:flex; flex-wrap:wrap; gap:16px; margin-top:12px; align-items:flex-start; }
 .kartenCol{
   flex:1 1 320px; min-width:280px;
@@ -382,45 +382,6 @@ details summary{
 .cardPool {
   max-height: 60vh;
   overflow-y: auto;
-}
-
-.dragCard{
-  background:#fffaf0; border:1px solid var(--paper-edge); border-radius:12px;
-  padding:10px 12px; cursor:grab; user-select:none;
-  font-family:"Courier New",monospace; font-size:1rem; font-weight:700; color:#2b261f;
-  box-shadow:0 4px 10px rgba(0,0,0,.15);
-  touch-action:none;
-}
-.dragCard:active{ cursor:grabbing; transform:scale(0.98); }
-
-.dropTarget{
-  min-height:80px; background:#eee8d2;
-  border:2px dashed var(--paper-edge); border-radius:12px;
-  box-shadow:0 0 10px rgba(0,0,0,.12) inset;
-  display:flex; align-items:center; justify-content:center; text-align:center;
-  padding:12px; color:#4a4033; font-family:"Courier New",monospace; font-size:.98rem; font-weight:700;
-}
-.dropTarget.correct{
-  background:#dff2df; border-color:#2e6338; color:#2e6338; box-shadow:0 0 12px rgba(46,99,56,.5);
-}
-.dropMsg{ font-family:"Courier New",monospace; font-size:.92rem; margin-top:6px; min-height:1em; color:var(--ink-dim); }
-.dropMsg.ok{ color:var(--ink-ok); font-weight:700; }
-.dropMsg.bad{ color:var(--ink-alert); font-weight:700; }
-
-/* Touch support hints */
-@media (pointer: coarse) {
-  .btn{ padding:14px 16px; font-size:1.05rem; }
-  .jeoBtn{ padding:22px; font-size:1.6rem; }
-  input, select { padding:14px 12px; font-size:1.05rem; }
-}
-.dragCard.dragging {
-  opacity: 0.6;
-  transform: scale(1.05);
-}
-.dragCard.activeTouch {
-  border: 2px solid #2e6338;
-  background-color: #eef8ee;
-  box-shadow: 0 0 10px rgba(46,99,56,0.5);
 }
 
 </style>
@@ -1224,16 +1185,22 @@ document.addEventListener('change', (e)=>{
     }
   }
 });
-function tryOpenK4(){
-  const qOK = (document.getElementById("q3_2").value||"").startsWith("Ein Hormon passt nur");
-  const pairsOK = allPairsCorrect();
+function tryOpenK4() {
+  const selectOK = document.getElementById("q3_2").value.includes("bestimmte Rezeptoren");
+  const allTargetsCorrect = Array.from(document.querySelectorAll(".tapTarget"))
+    .every(z => z.classList.contains("correct"));
+
   const goBtn = document.getElementById("k3go");
-  if(goBtn) goBtn.disabled = !(qOK && pairsOK);
-  if(qOK && pairsOK){
+  if (goBtn) {
+    goBtn.disabled = !(selectOK && allTargetsCorrect);
+  }
+
+  if (selectOK && allTargetsCorrect) {
     setFeedback("k3msg", true, "Alle Zuordnungen korrekt! Archiv 004 öffnet …");
-    setTimeout(()=>{ showSection("k3","k4"); }, TRANSITION_DELAY);
+    setTimeout(() => { showSection("k3","k4"); }, TRANSITION_DELAY);
   }
 }
+
 function shuffleHormones(){
   const pool = document.getElementById("hormonePool");
   if(!pool) return;
@@ -1382,73 +1349,6 @@ function setFeedback(id, success, msg){
   el.style.transition = "color 0.3s ease";
 }
 
-
-/* ----------------- K5 – SIM ----------------- */
-function updateSimVals(){
-  document.getElementById("insulinVal").textContent = document.getElementById("insulinRange").value+"%";
-  document.getElementById("glukagonVal").textContent = document.getElementById("glukagonRange").value+"%";
-}
-function startSimulation(){
-  if(typeof bz === "undefined" || isNaN(bz)) {
-    // falls kein Szenario geladen: Standardwert
-    bz = 245;
-  }
-  stableTime = 0;
-  scenarioNoise = 0.8;
-  scenarioBias = 0.3;
-
-  updateSimDisplay();
-  if(simInterval) clearInterval(simInterval);
-  simInterval = setInterval(simStep,400);
-  setFeedback("k5msg", true, "Simulation gestartet. Ziel: 80–120 mg/dl ≥ 12 s.");
-}
-
-function simStep(){
-  const insulin  = parseInt(document.getElementById("insulinRange").value,10);
-  const glucagon = parseInt(document.getElementById("glukagonRange").value,10);
-  const eff  = (glucagon - insulin)*0.1;
-  const rand = (Math.random()-0.5)*scenarioNoise;
-  bz += eff + scenarioBias + rand;
-  if(bz<40) bz=40;
-  if(bz>260) bz=260;
-  if(bz>=80 && bz<=120){ stableTime += 0.4; } else { stableTime = Math.max(0,stableTime-0.4); }
-  updateSimDisplay();
-}
-function updateSimDisplay(){
-  document.getElementById("bzVal").textContent = bz.toFixed(1)+" mg/dl";
-  document.getElementById("stableTimeVal").textContent = Math.floor(stableTime)+" s";
-  const pct = Math.max(0,Math.min(100,(bz-40)/(260-40)*100));
-  const fillEl = document.getElementById("bzMeterFill");
-  fillEl.style.width = pct+"%";
-  if(bz>120){
-    fillEl.style.background = "#a1342d"; fillEl.style.boxShadow = "0 0 8px rgba(161,52,45,.6)";
-    document.getElementById("simStatusText").textContent="zu hoch";
-    document.getElementById("simStatusText").className="simStatus bad";
-  } else if(bz<80){
-    fillEl.style.background = "#cfa253"; fillEl.style.boxShadow = "0 0 8px rgba(199,160,90,.6)";
-    document.getElementById("simStatusText").textContent="zu niedrig";
-    document.getElementById("simStatusText").className="simStatus bad";
-  } else {
-    fillEl.style.background = "#2e6338"; fillEl.style.boxShadow = "0 0 8px rgba(46,99,56,.7)";
-    document.getElementById("simStatusText").textContent="stabil";
-    document.getElementById("simStatusText").className="simStatus ok";
-  }
-}
-function checkStable(){
-  if(stableTime>=12){
-    if(simInterval) clearInterval(simInterval);
-    setFeedback("k5msg", true, "Vitalwerte stabil. Patient erwacht …");
-    buildCertificate();
-    playSuccess();
-    setTimeout(()=>{ showSection("k5","k7"); }, TRANSITION_DELAY);
-  } else {
-    setFeedback("k5msg", false, "Noch nicht lange genug stabil. Ziel: ≥12 s im Bereich 80–120 mg/dl.");
-  }
-}
-function backFromK5(){
-  if(fromTraining){ showSection("k5","k6"); }
-  else { showSection("k5","k4"); }
-}
 /* ----------------- K5 – SIM ----------------- */
 function updateSimVals(){
   document.getElementById("insulinVal").textContent = document.getElementById("insulinRange").value+"%";
@@ -1623,17 +1523,6 @@ function loadScenario(type){
   simInterval = setInterval(simStep,400);
 }
 
-function checkAllAssigned() {
-  const allTargets = document.querySelectorAll(".dropTarget");
-  const done = [...allTargets].every(t => t.classList.contains("correct"));
-  const select = document.getElementById("q3_2");
-  const correctQ = (select.value === "Ein Hormon passt nur an ganz bestimmte Rezeptoren einer Zielzelle.");
-
-  if (done && correctQ) {
-    document.getElementById("k3go").disabled = false;
-    setFeedback("k3msg", true, "Alle Zuordnungen korrekt – Archiv 004 freigegeben!");
-  }
-}
 /* ===== Kapitel 3: Antipp-Zuordnung ===== */
 let selectedHormone = null;
 
