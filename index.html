@@ -93,6 +93,50 @@ header .lead{
   line-height:1.4;
   font-style:italic;
 }
+.tapCard {
+  display:block;
+  background:#fffaf0;
+  border:1px solid var(--paper-edge);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  font-family:"Courier New",monospace;
+  font-size:1rem;
+  font-weight:700;
+  color:#2b261f;
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
+  cursor:pointer;
+  text-align:left;
+}
+.tapCard.activeTouch { background:#f9e0a0; border-color:#b48a30; }
+.tapCard.used { opacity:0.5; cursor:default; }
+
+.tapTarget {
+  background:#eee8d2;
+  border:2px dashed var(--paper-edge);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  text-align:center;
+  justify-content:center;
+  font-family:"Courier New",monospace;
+  font-weight:700;
+  color:#4a4033;
+}
+.tapTarget.correct {
+  background:#dff2df;
+  border-color:#2e6338;
+  color:#2e6338;
+}
+.tapTarget.wrongFlash {
+  background:#f8d7da;
+  border-color:#a1342d;
+  transition:0.3s;
+}
+
 
 /* Sound toggle */
 #soundToggle{
@@ -588,76 +632,68 @@ details summary{
     <div class="badge">Hormone</div>
   </div>
 
-  <h2>Kapitel 3 – Hormone: Botenstoffe & Wirkungen</h2>
+<h2>Kapitel 3 – Hormone: Botenstoffe & Wirkungen</h2>
 
-  <p>Auf dem Pult liegt die Akte <em>„Endokrine Steuerung“</em>. Darin: lose Karten mit Hormonnamen – und ein leerer Kasten mit Wirkungsfeldern.</p>
+<p>Auf dem Pult liegt die Akte <em>„Endokrine Steuerung“</em>. Darin: lose Karten mit Hormonnamen – und ein leerer Kasten mit Wirkungsfeldern.</p>
 
-  <div class="terminal">
-    <div>MedAI: „Hormone reisen über das Blut, wirken aber nur dort, wo die Zielzelle den passenden Rezeptor hat.“</div>
-  </div>
+<div class="terminal">
+  <div>MedAI: „Hormone reisen über das Blut, wirken aber nur dort, wo die Zielzelle den passenden Rezeptor hat.“</div>
+</div>
 
-  <div class="panelBlock">
-    <label class="small">Was beschreibt das Schlüssel–Schloss-Prinzip am besten?</label>
-    <select id="q3_2">
-      <option value="">– wählen –</option>
-      <option>Ein Hormon wirkt überall gleich.</option>
-      <option>Ein Hormon passt nur an ganz bestimmte Rezeptoren einer Zielzelle.</option>
-      <option>Hormone sind nur in Muskeln aktiv.</option>
-    </select>
-    <div id="k3qmsg" class="feedback" style="margin-top:6px;"></div>
-  </div>
+<div class="panelBlock">
+  <label class="small">Was beschreibt das Schlüssel–Schloss-Prinzip am besten?</label>
+  <select id="q3_2">
+    <option value="">– wählen –</option>
+    <option>Ein Hormon wirkt überall gleich.</option>
+    <option>Ein Hormon passt nur an ganz bestimmte Rezeptoren einer Zielzelle.</option>
+    <option>Hormone sind nur in Muskeln aktiv.</option>
+  </select>
+  <div id="k3qmsg" class="feedback" style="margin-top:6px;"></div>
+</div>
 
-  <div class="panelBlock" style="margin-top:16px;">
-    <div class="k artenColHead" style="font-family:'Courier New',monospace;font-size:1rem;color:var(--ink-dim);margin-bottom:6px;text-transform:uppercase;">Zuordnung: Hormon &rarr; Wirkung</div>
-    <p class="small">Zieht jede Hormon-Karte (links) auf das passende Wirkungsfeld (rechts). Wenn alle Zuordnungen korrekt sind und die Frage oben richtig beantwortet wurde, öffnet sich Archiv 004 automatisch.</p>
+<div class="panelBlock" style="margin-top:16px;">
+  <div class="kartenColHead" style="font-family:'Courier New',monospace;font-size:1rem;color:var(--ink-dim);margin-bottom:6px;text-transform:uppercase;">Zuordnung: Hormon → Wirkung</div>
+  <p class="small">Tippe zuerst auf eine Hormonkarte (links) und dann auf das passende Wirkungsfeld (rechts). Wenn alle Zuordnungen korrekt sind und die Frage oben richtig beantwortet wurde, öffnet sich Archiv 004 automatisch.</p>
 
-    <div class="kartenRow">
-      <div class="kartenCol">
-        <div class="kartenColHead">Hormone (ziehen)</div>
-        <div class="cardPool" id="hormonePool">
-          <div class="dragCard" id="h_freisetzer" draggable="true" data-horm="freisetzer" ondragstart="dragStart(event)">Freisetzungshormone</div>
-          <div class="dragCard" id="h_wachstum"   draggable="true" data-horm="wachstum"   ondragstart="dragStart(event)">Wachstums-/Steuerungshormone</div>
-          <div class="dragCard" id="h_thyroxin"   draggable="true" data-horm="thyroxin"   ondragstart="dragStart(event)">Thyroxin</div>
-          <div class="dragCard" id="h_cortisol"   draggable="true" data-horm="cortisol"   ondragstart="dragStart(event)">Cortisol</div>
-          <div class="dragCard" id="h_adrenalin"  draggable="true" data-horm="adrenalin"  ondragstart="dragStart(event)">Adrenalin</div>
-          <div class="dragCard" id="h_ig"         draggable="true" data-horm="ig"         ondragstart="dragStart(event)">Insulin / Glukagon</div>
-          <div class="dragCard" id="h_oep"        draggable="true" data-horm="oep"        ondragstart="dragStart(event)">Östrogene / Progesteron</div>
-          <div class="dragCard" id="h_testo"      draggable="true" data-horm="testo"      ondragstart="dragStart(event)">Testosteron</div>
-        </div>
-      </div>
-
-      <div class="kartenCol">
-        <div class="kartenColHead">Wirkungen (ablegen)</div>
-        <div class="dropTarget" id="w_freisetzer" data-accept="freisetzer" ondragover="dragOver(event)" ondrop="dropCard(event)">beeinflussen die Freisetzung von Hormonen in der Hypophyse</div>
-        <div class="dropMsg" id="msg_freisetzer"></div>
-        <div class="dropTarget" id="w_wachstum" data-accept="wachstum" ondragover="dragOver(event)" ondrop="dropCard(event)">Wachstum; Anregung anderer Hormondrüsen zur Ausschüttung</div>
-        <div class="dropMsg" id="msg_wachstum"></div>
-        <div class="dropTarget" id="w_thyroxin" data-accept="thyroxin" ondragover="dragOver(event)" ondrop="dropCard(event)">Erhöhung des Stoffwechsels / Grundumsatzes</div>
-        <div class="dropMsg" id="msg_thyroxin"></div>
-        <div class="dropTarget" id="w_cortisol" data-accept="cortisol" ondragover="dragOver(event)" ondrop="dropCard(event)">Hemmung/Heilung von Entzündungen, Gefäßverengung</div>
-        <div class="dropMsg" id="msg_cortisol"></div>
-        <div class="dropTarget" id="w_adrenalin" data-accept="adrenalin" ondragover="dragOver(event)" ondrop="dropCard(event)">Steigerung Herz-Kreislauf, Energiereserven mobilisieren</div>
-        <div class="dropMsg" id="msg_adrenalin"></div>
-        <div class="dropTarget" id="w_ig" data-accept="ig" ondragover="dragOver(event)" ondrop="dropCard(event)">Senkung/Erhöhung des Blutzuckerspiegels</div>
-        <div class="dropMsg" id="msg_ig"></div>
-        <div class="dropTarget" id="w_oep" data-accept="oep" ondragover="dragOver(event)" ondrop="dropCard(event)">weibliche Merkmale; Zyklus; Schwangerschaft</div>
-        <div class="dropMsg" id="msg_oep"></div>
-        <div class="dropTarget" id="w_testo" data-accept="testo" ondragover="dragOver(event)" ondrop="dropCard(event)">männliche Merkmale; Muskelzunahme</div>
-        <div class="dropMsg" id="msg_testo"></div>
+  <div class="kartenRow">
+    <div class="kartenCol">
+      <div class="kartenColHead">Hormone</div>
+      <div class="cardPool" id="hormonePool">
+        <button class="tapCard" data-horm="freisetzer">Freisetzungshormone</button>
+        <button class="tapCard" data-horm="wachstum">Wachstums-/Steuerungshormone</button>
+        <button class="tapCard" data-horm="thyroxin">Thyroxin</button>
+        <button class="tapCard" data-horm="cortisol">Cortisol</button>
+        <button class="tapCard" data-horm="adrenalin">Adrenalin</button>
+        <button class="tapCard" data-horm="ig">Insulin / Glukagon</button>
+        <button class="tapCard" data-horm="oep">Östrogene / Progesteron</button>
+        <button class="tapCard" data-horm="testo">Testosteron</button>
       </div>
     </div>
 
-    <div class="row" style="margin-top:12px;">
-      <button class="btn" id="k3go" onclick="playClick();tryOpenK4()" disabled>Archiv 004 freigeben</button>
-      <div id="k3msg" class="feedback"></div>
+    <div class="kartenCol">
+      <div class="kartenColHead">Wirkungen</div>
+      <div class="tapTarget" data-accept="freisetzer">beeinflussen die Freisetzung von Hormonen in der Hypophyse</div>
+      <div class="tapTarget" data-accept="wachstum">Wachstum; Anregung anderer Hormondrüsen zur Ausschüttung</div>
+      <div class="tapTarget" data-accept="thyroxin">Erhöhung des Stoffwechsels / Grundumsatzes</div>
+      <div class="tapTarget" data-accept="cortisol">Hemmung/Heilung von Entzündungen, Gefäßverengung</div>
+      <div class="tapTarget" data-accept="adrenalin">Steigerung Herz-Kreislauf, Energiereserven mobilisieren</div>
+      <div class="tapTarget" data-accept="ig">Senkung/Erhöhung des Blutzuckerspiegels</div>
+      <div class="tapTarget" data-accept="oep">weibliche Merkmale; Zyklus; Schwangerschaft</div>
+      <div class="tapTarget" data-accept="testo">männliche Merkmale; Muskelzunahme</div>
     </div>
   </div>
 
-  <div class="navRow">
-    <button class="btn backBtn" onclick="playClick();goBack('k2')">Zurück: Glukose</button>
+  <div class="row" style="margin-top:12px;">
+    <button class="btn" id="k3go" onclick="playClick();tryOpenK4()" disabled>Archiv 004 freigeben</button>
+    <div id="k3msg" class="feedback"></div>
   </div>
-</section>
+</div>
 
+<div class="navRow">
+  <button class="btn backBtn" onclick="playClick();goBack('k2')">Zurück: Glukose</button>
+</div>
+
+   
 <!-- KAPITEL 4 -->
 <section class="card hidden" id="k4">
   <div class="cardHead">
@@ -1188,36 +1224,6 @@ document.addEventListener('change', (e)=>{
     }
   }
 });
-let draggedId = null;
-const dropPairs = {
-  freisetzer:false, wachstum:false, thyroxin:false, cortisol:false,
-  adrenalin:false, ig:false, oep:false, testo:false
-};
-function dragStart(ev){ draggedId = ev.target.id; }
-function dragOver(ev){ ev.preventDefault(); }
-function dropCard(ev){
-  ev.preventDefault();
-  if(!draggedId) return;
-  const cardEl = document.getElementById(draggedId);
-  if(!cardEl) return;
-  const hormone = cardEl.getAttribute("data-horm");
-  const accept  = ev.currentTarget.getAttribute("data-accept");
-  const msgId   = "msg_" + accept;
-  const msgBox  = document.getElementById(msgId);
-  if(hormone === accept){
-    ev.currentTarget.classList.add("correct");
-    ev.currentTarget.textContent = cardEl.textContent.trim();
-    if(msgBox){ msgBox.textContent="✔ passt!"; msgBox.classList.remove("bad"); msgBox.classList.add("ok"); }
-    dropPairs[accept] = true;
-    cardEl.setAttribute("draggable","false");
-    cardEl.style.opacity="0.4"; cardEl.style.cursor="default";
-    playSuccess();
-    tryOpenK4();
-  } else {
-    if(msgBox){ msgBox.textContent="✖ falsche Karte"; msgBox.classList.remove("ok"); msgBox.classList.add("bad"); }
-  }
-}
-function allPairsCorrect(){ return Object.values(dropPairs).every(v=>v); }
 function tryOpenK4(){
   const qOK = (document.getElementById("q3_2").value||"").startsWith("Ein Hormon passt nur");
   const pairsOK = allPairsCorrect();
@@ -1628,103 +1634,57 @@ function checkAllAssigned() {
     setFeedback("k3msg", true, "Alle Zuordnungen korrekt – Archiv 004 freigegeben!");
   }
 }
-/* === Touch-Unterstützung für Drag & Drop UND Tipp-Alternative === */
+/* ===== Kapitel 3: Antipp-Zuordnung ===== */
+let selectedHormone = null;
 
-/* 1. Visuelles "ich werde gerade gezogen" bei Touch */
-document.querySelectorAll(".dragCard").forEach(card => {
-  card.addEventListener("touchstart", e => {
-    card.classList.add("dragging");
-  });
+document.querySelectorAll(".tapCard").forEach(btn => {
+  btn.addEventListener("click", () => {
+    if (btn.classList.contains("used")) return;
 
-  card.addEventListener("touchend", e => {
-    e.preventDefault();
-
-    const touch = e.changedTouches[0];
-    const target = document.elementFromPoint(touch.clientX, touch.clientY);
-    const zone = target?.closest(".dropTarget");
-    if (!zone) {
-      card.classList.remove("dragging");
-      return;
-    }
-
-    const horm = card.getAttribute("data-horm");
-    const accept = zone.getAttribute("data-accept");
-    const msg = document.getElementById("msg_" + accept);
-
-    if (horm === accept) {
-      zone.classList.add("correct");
-      zone.textContent = card.textContent;
-      card.style.visibility = "hidden";
-      if (msg) {
-        msg.textContent = "✔️ Richtig!";
-        msg.className = "dropMsg ok";
-      }
-      playSuccess();
-    } else {
-      if (msg) {
-        msg.textContent = "❌ Falsch, versuch es nochmal.";
-        msg.className = "dropMsg bad";
-      }
-      playClick();
-    }
-
-    checkAllAssigned();
-    card.classList.remove("dragging");
+    // Auswahl markieren
+    document.querySelectorAll(".tapCard").forEach(b => b.classList.remove("activeTouch"));
+    btn.classList.add("activeTouch");
+    selectedHormone = btn;
+    playClick();
   });
 });
 
-/* 2. Tipp-zuordnen-Modus (Tap → Tap), nur auf Touch-Geräten aktiv */
-if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
-  let selectedCard = null;
+document.querySelectorAll(".tapTarget").forEach(zone => {
+  zone.addEventListener("click", () => {
+    if (!selectedHormone) return;
+    const horm = selectedHormone.dataset.horm;
+    const accept = zone.dataset.accept;
 
-  // Karte antippen = auswählen
-  document.querySelectorAll(".dragCard").forEach(card => {
-    card.addEventListener("click", () => {
-      // Bereits benutzte Karten ignorieren
-      if (card.style.visibility === "hidden") return;
-
-      // Optisches Feedback
-      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
-      card.classList.add("activeTouch");
-      selectedCard = card;
-      playClick();
-    });
-  });
-
-  // Zielbereich antippen = Karte dort "ablegen"
-  document.querySelectorAll(".dropTarget").forEach(zone => {
-    zone.addEventListener("click", () => {
-      if (!selectedCard) return; // keine Karte gewählt
-
-      const horm = selectedCard.getAttribute("data-horm");
-      const accept = zone.getAttribute("data-accept");
-      const msg = document.getElementById("msg_" + accept);
-
-      if (horm === accept) {
-        zone.classList.add("correct");
-        zone.textContent = selectedCard.textContent;
-        selectedCard.style.visibility = "hidden";
-        if (msg) {
-          msg.textContent = "✔️ Richtig!";
-          msg.className = "dropMsg ok";
-        }
-        playSuccess();
-      } else {
-        if (msg) {
-          msg.textContent = "❌ Falsch, versuch es nochmal.";
-          msg.className = "dropMsg bad";
-        }
-        playClick();
-      }
-
-      selectedCard.classList.remove("activeTouch");
-      selectedCard = null;
-
+    if (horm === accept) {
+      zone.textContent = selectedHormone.textContent;
+      zone.classList.add("correct");
+      selectedHormone.classList.add("used");
+      selectedHormone.disabled = true;
+      selectedHormone.classList.remove("activeTouch");
+      selectedHormone = null;
+      playSuccess();
       checkAllAssigned();
-    });
+    } else {
+      zone.classList.add("wrongFlash");
+      playClick();
+      setTimeout(() => zone.classList.remove("wrongFlash"), 400);
+    }
   });
-}
+});
 
+function checkAllAssigned() {
+  const all = document.querySelectorAll(".tapTarget");
+  const correct = Array.from(all).every(z => z.classList.contains("correct"));
+  const selectOK = document.getElementById("q3_2").value.includes("bestimmte Rezeptoren");
+  const btn = document.getElementById("k3go");
+
+  if (correct && selectOK) {
+    btn.disabled = false;
+    document.getElementById("k3msg").textContent = "✅ Alle Zuordnungen korrekt!";
+  } else {
+    btn.disabled = true;
+  }
+}
 </script>
 
 <p class="small" style="text-align:center;margin-top:16px;color:#6b5a40;">
