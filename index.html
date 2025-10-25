@@ -657,54 +657,6 @@ details summary{
   </div>
 </section>
 
-/* ----------------- KAPITEL 3 – TOUCH-ZUORDNUNG ----------------- */
-// Nur aktiv auf Touch-Geräten
-if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
-  let selectedCard = null;
-
-  // Wenn auf eine Hormonkarte getippt wird
-  document.querySelectorAll(".dragCard").forEach(card => {
-    card.addEventListener("click", () => {
-      // bereits benutzte Karten ignorieren
-      if (card.style.visibility === "hidden") return;
-
-      // visuelles Feedback
-      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
-      card.classList.add("activeTouch");
-      selectedCard = card;
-      playClick();
-    });
-  });
-
-  // Wenn auf ein Wirkungsfeld getippt wird
-  document.querySelectorAll(".dropTarget").forEach(zone => {
-    zone.addEventListener("click", () => {
-      if (!selectedCard) return; // keine Karte ausgewählt
-      const horm = selectedCard.getAttribute("data-horm");
-      const accept = zone.getAttribute("data-accept");
-      const msg = document.getElementById("msg_" + accept);
-
-      if (horm === accept) {
-        zone.classList.add("correct");
-        zone.textContent = selectedCard.textContent;
-        selectedCard.style.visibility = "hidden";
-        msg.textContent = "✔️ Richtig!";
-        msg.className = "dropMsg ok";
-        playSuccess();
-      } else {
-        msg.textContent = "❌ Falsch, versuch es nochmal.";
-        msg.className = "dropMsg bad";
-        playClick();
-      }
-
-      selectedCard.classList.remove("activeTouch");
-      selectedCard = null;
-      checkAllAssigned();
-    });
-  });
-}
-
-
 <!-- KAPITEL 4 -->
 <section class="card hidden" id="k4">
   <div class="cardHead">
@@ -1719,6 +1671,54 @@ document.querySelectorAll(".dragCard").forEach(card => {
     e.preventDefault();
     card.classList.add("dragging");
   });
+
+/* ----------------- KAPITEL 3 – TOUCH-ZUORDNUNG ----------------- */
+// Nur aktiv auf Touch-Geräten
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  let selectedCard = null;
+
+  // Wenn auf eine Hormonkarte getippt wird
+  document.querySelectorAll(".dragCard").forEach(card => {
+    card.addEventListener("click", () => {
+      // bereits benutzte Karten ignorieren
+      if (card.style.visibility === "hidden") return;
+
+      // visuelles Feedback
+      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
+      card.classList.add("activeTouch");
+      selectedCard = card;
+      playClick();
+    });
+  });
+
+  // Wenn auf ein Wirkungsfeld getippt wird
+  document.querySelectorAll(".dropTarget").forEach(zone => {
+    zone.addEventListener("click", () => {
+      if (!selectedCard) return; // keine Karte ausgewählt
+      const horm = selectedCard.getAttribute("data-horm");
+      const accept = zone.getAttribute("data-accept");
+      const msg = document.getElementById("msg_" + accept);
+
+      if (horm === accept) {
+        zone.classList.add("correct");
+        zone.textContent = selectedCard.textContent;
+        selectedCard.style.visibility = "hidden";
+        msg.textContent = "✔️ Richtig!";
+        msg.className = "dropMsg ok";
+        playSuccess();
+      } else {
+        msg.textContent = "❌ Falsch, versuch es nochmal.";
+        msg.className = "dropMsg bad";
+        playClick();
+      }
+
+      selectedCard.classList.remove("activeTouch");
+      selectedCard = null;
+      checkAllAssigned();
+    });
+  });
+}
+
 
   card.addEventListener("touchend", e => {
     e.preventDefault();
