@@ -1616,43 +1616,6 @@ function loadScenario(type){
   showSection("k6","k5");
   simInterval = setInterval(simStep,400);
 }
-/* ----------------- KAPITEL 3 – DRAG & DROP ----------------- */
-function dragStart(e) {
-  e.dataTransfer?.setData("text", e.target.id);
-  playPaper();
-}
-
-function dragOver(e) {
-  e.preventDefault();
-}
-
-function dropCard(e) {
-  e.preventDefault();
-  const id = e.dataTransfer.getData("text");
-  const card = document.getElementById(id);
-  const target = e.target;
-  const accept = target.getAttribute("data-accept");
-
-  if (!card || !accept) return;
-
-  const horm = card.getAttribute("data-horm");
-  const msg = document.getElementById("msg_" + accept);
-
-  if (horm === accept) {
-    target.classList.add("correct");
-    target.textContent = card.textContent;
-    card.style.visibility = "hidden";
-    msg.textContent = "✔️ Richtig!";
-    msg.className = "dropMsg ok";
-    playSuccess();
-  } else {
-    msg.textContent = "❌ Falsch, versuch es nochmal.";
-    msg.className = "dropMsg bad";
-    playClick();
-  }
-
-  checkAllAssigned();
-}
 
 function checkAllAssigned() {
   const allTargets = document.querySelectorAll(".dropTarget");
