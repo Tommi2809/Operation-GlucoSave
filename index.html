@@ -177,9 +177,28 @@ section.card{
   opacity:1;
   transition:opacity .6s ease;
 }
-section.card.hidden{ display:none; }
-section.card.leaving{ opacity:0; pointer-events:none; }
-section.card.entering{ opacity:0; }
+section.card.hidden {
+  visibility: hidden;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+section.card.leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+section.card.entering {
+  opacity: 0;
+  animation: fadeIn 0.6s forwards;
+}
+
+/* sanfte Sichtbarkeit */
+@keyframes fadeIn {
+  from { opacity: 0; visibility: visible; }
+  to { opacity: 1; visibility: visible; }
+}
+
 
 .cardHead{
   display:flex; flex-wrap:wrap; gap:8px 16px;
