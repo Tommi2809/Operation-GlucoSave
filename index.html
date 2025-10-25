@@ -363,6 +363,11 @@ details summary{
   .jeoBtn{ padding:22px; font-size:1.6rem; }
   input, select { padding:14px 12px; font-size:1.05rem; }
 }
+.dragCard.dragging {
+  opacity: 0.6;
+  transform: scale(1.05);
+}
+
 </style>
 </head>
 
@@ -1600,6 +1605,92 @@ function loadScenario(type){
   showSection("k6","k5");
   simInterval = setInterval(simStep,400);
 }
+/* ----------------- KAPITEL 3 – DRAG & DROP ----------------- */
+function dragStart(e) {
+  e.dataTransfer?.setData("text", e.target.id);
+  playPaper();
+}
+
+function dragOver(e) {
+  e.preventDefault();
+}
+
+function dropCard(e) {
+  e.preventDefault();
+  const id = e.dataTransfer.getData("text");
+  const card = document.getElementById(id);
+  const target = e.target;
+  const accept = target.getAttribute("data-accept");
+
+  if (!card || !accept) return;
+
+  const horm = card.getAttribute("data-horm");
+  const msg = document.getElementById("msg_" + accept);
+
+  if (horm === accept) {
+    target.classList.add("correct");
+    target.textContent = card.textContent;
+    card.style.visibility = "hidden";
+    msg.textContent = "✔️ Richtig!";
+    msg.className = "dropMsg ok";
+    playSuccess();
+  } else {
+    msg.textContent = "❌ Falsch, versuch es nochmal.";
+    msg.className = "dropMsg bad";
+    playClick();
+  }
+
+  checkAllAssigned();
+}
+
+function checkAllAssigned() {
+  const allTargets = document.querySelectorAll(".dropTarget");
+  const done = [...allTargets].every(t => t.classList.contains("correct"));
+  const select = document.getElementById("q3_2");
+  const correctQ = (select.value === "Ein Hormon passt nur an ganz bestimmte Rezeptoren einer Zielzelle.");
+
+  if (done && correctQ) {
+    document.getElementById("k3go").disabled = false;
+    setFeedback("k3msg", true, "Alle Zuordnungen korrekt – Archiv 004 freigegeben!");
+  }
+}
+
+/* === Touch-Support (für Tablets & Smartphones) === */
+document.querySelectorAll(".dragCard").forEach(card => {
+  card.addEventListener("touchstart", e => {
+    e.preventDefault();
+    card.classList.add("dragging");
+  });
+
+  card.addEventListener("touchend", e => {
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const zone = target?.closest(".dropTarget");
+    if (!zone) return;
+
+    const horm = card.getAttribute("data-horm");
+    const accept = zone.getAttribute("data-accept");
+    const msg = document.getElementById("msg_" + accept);
+
+    if (horm === accept) {
+      zone.classList.add("correct");
+      zone.textContent = card.textContent;
+      card.style.visibility = "hidden";
+      msg.textContent = "✔️ Richtig!";
+      msg.className = "dropMsg ok";
+      playSuccess();
+    } else {
+      msg.textContent = "❌ Falsch, versuch es nochmal.";
+      msg.className = "dropMsg bad";
+      playClick();
+    }
+
+    checkAllAssigned();
+    card.classList.remove("dragging");
+  });
+});
+
 </script>
 
 <p class="small" style="text-align:center;margin-top:16px;color:#6b5a40;">
