@@ -1664,68 +1664,25 @@ function checkAllAssigned() {
     setFeedback("k3msg", true, "Alle Zuordnungen korrekt – Archiv 004 freigegeben!");
   }
 }
+/* === Touch-Unterstützung für Drag & Drop UND Tipp-Alternative === */
 
-/* === Touch-Support (für Tablets & Smartphones) === */
+/* 1. Visuelles "ich werde gerade gezogen" bei Touch */
 document.querySelectorAll(".dragCard").forEach(card => {
   card.addEventListener("touchstart", e => {
     e.preventDefault();
     card.classList.add("dragging");
   });
 
-/* ----------------- KAPITEL 3 – TOUCH-ZUORDNUNG ----------------- */
-// Nur aktiv auf Touch-Geräten
-if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
-  let selectedCard = null;
-
-  // Wenn auf eine Hormonkarte getippt wird
-  document.querySelectorAll(".dragCard").forEach(card => {
-    card.addEventListener("click", () => {
-      // bereits benutzte Karten ignorieren
-      if (card.style.visibility === "hidden") return;
-
-      // visuelles Feedback
-      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
-      card.classList.add("activeTouch");
-      selectedCard = card;
-      playClick();
-    });
-  });
-
-  // Wenn auf ein Wirkungsfeld getippt wird
-  document.querySelectorAll(".dropTarget").forEach(zone => {
-    zone.addEventListener("click", () => {
-      if (!selectedCard) return; // keine Karte ausgewählt
-      const horm = selectedCard.getAttribute("data-horm");
-      const accept = zone.getAttribute("data-accept");
-      const msg = document.getElementById("msg_" + accept);
-
-      if (horm === accept) {
-        zone.classList.add("correct");
-        zone.textContent = selectedCard.textContent;
-        selectedCard.style.visibility = "hidden";
-        msg.textContent = "✔️ Richtig!";
-        msg.className = "dropMsg ok";
-        playSuccess();
-      } else {
-        msg.textContent = "❌ Falsch, versuch es nochmal.";
-        msg.className = "dropMsg bad";
-        playClick();
-      }
-
-      selectedCard.classList.remove("activeTouch");
-      selectedCard = null;
-      checkAllAssigned();
-    });
-  });
-}
-
-
   card.addEventListener("touchend", e => {
     e.preventDefault();
+
     const touch = e.changedTouches[0];
     const target = document.elementFromPoint(touch.clientX, touch.clientY);
     const zone = target?.closest(".dropTarget");
-    if (!zone) return;
+    if (!zone) {
+      card.classList.remove("dragging");
+      return;
+    }
 
     const horm = card.getAttribute("data-horm");
     const accept = zone.getAttribute("data-accept");
@@ -1735,12 +1692,16 @@ if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
       zone.classList.add("correct");
       zone.textContent = card.textContent;
       card.style.visibility = "hidden";
-      msg.textContent = "✔️ Richtig!";
-      msg.className = "dropMsg ok";
+      if (msg) {
+        msg.textContent = "✔️ Richtig!";
+        msg.className = "dropMsg ok";
+      }
       playSuccess();
     } else {
-      msg.textContent = "❌ Falsch, versuch es nochmal.";
-      msg.className = "dropMsg bad";
+      if (msg) {
+        msg.textContent = "❌ Falsch, versuch es nochmal.";
+        msg.className = "dropMsg bad";
+      }
       playClick();
     }
 
@@ -1748,6 +1709,58 @@ if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
     card.classList.remove("dragging");
   });
 });
+
+/* 2. Tipp-zuordnen-Modus (Tap → Tap), nur auf Touch-Geräten aktiv */
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  let selectedCard = null;
+
+  // Karte antippen = auswählen
+  document.querySelectorAll(".dragCard").forEach(card => {
+    card.addEventListener("click", () => {
+      // Bereits benutzte Karten ignorieren
+      if (card.style.visibility === "hidden") return;
+
+      // Optisches Feedback
+      document.querySelectorAll(".dragCard").forEach(c => c.classList.remove("activeTouch"));
+      card.classList.add("activeTouch");
+      selectedCard = card;
+      playClick();
+    });
+  });
+
+  // Zielbereich antippen = Karte dort "ablegen"
+  document.querySelectorAll(".dropTarget").forEach(zone => {
+    zone.addEventListener("click", () => {
+      if (!selectedCard) return; // keine Karte gewählt
+
+      const horm = selectedCard.getAttribute("data-horm");
+      const accept = zone.getAttribute("data-accept");
+      const msg = document.getElementById("msg_" + accept);
+
+      if (horm === accept) {
+        zone.classList.add("correct");
+        zone.textContent = selectedCard.textContent;
+        selectedCard.style.visibility = "hidden";
+        if (msg) {
+          msg.textContent = "✔️ Richtig!";
+          msg.className = "dropMsg ok";
+        }
+        playSuccess();
+      } else {
+        if (msg) {
+          msg.textContent = "❌ Falsch, versuch es nochmal.";
+          msg.className = "dropMsg bad";
+        }
+        playClick();
+      }
+
+      selectedCard.classList.remove("activeTouch");
+      selectedCard = null;
+
+      checkAllAssigned();
+    });
+  });
+}
 
 </script>
 
